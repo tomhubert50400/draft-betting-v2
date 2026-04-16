@@ -1,0 +1,108 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+
+const STATUS_STYLES = {
+  open: 'bg-accent-cyan/20 text-accent-cyan border-accent-cyan/30',
+  locked: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  completed: 'bg-text-muted/20 text-text-muted border-text-muted/30',
+};
+
+const STATUS_LABELS = {
+  open: 'Open',
+  locked: 'Locked',
+  completed: 'Completed',
+};
+
+function formatCountdown(ms) {
+  if (ms <= 0) return 'Locking soon...';
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
+
+export default function MatchCard({ match }) {
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  useEffect(() => {
+    if (match.status !== 'open' || !match.lock_at) return;
+
+    function update() {
+      const diff = new Date(match.lock_at).getTime() - Date.now();
+      setTimeLeft(diff);
+    }
+
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [match.status, match.lock_at]);
+
+  const status = match.status || 'open';
+  const formatLabel = match.format === 'BO3' ? 'BO3' : match.format === 'BO5' ? 'BO5' : '';
+  const gameLabel = match.game_number ? `Game ${match.game_number}` : '';
+
+  return (
+    <Link
+      to={`/match/${match.id}`}
+      className="block bg-bg-card rounded-xl border border-white/5 hover:border-accent-purple/30 hover:shadow-lg hover:shadow-accent-purple/5 transition-all duration-200 p-4"
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${STATUS_STYLES[status]}`}>
+            {STATUS_LABELS[status]}
+          </span>
+          {formatLabel && (
+            <span className="text-xs text-text-muted font-medium">
+              {formatLabel}
+            </span>
+          )}
+          {gameLabel && (
+            <span className="text-xs text-text-secondary font-medium bg-bg-hover px-2 py-0.5 rounded">
+              {gameLabel}
+            </span>
+          )}
+        </div>
+        {status === 'open' && timeLeft !== null && (
+          <span className="text-xs text-accent-cyan font-mono">
+            {formatCountdown(timeLeft)}
+          </span>
+        )}
+      </div>
+
+      {/* Teams */}
+      <div className="flex items-center justify-center gap-4">
+        <div className="flex-1 text-right">
+          <span className="text-lg font-bold text-text-primary">
+            {match.team1}
+          </span>
+        </div>
+        <span className="text-text-muted text-sm font-bold px-2">VS</span>
+        <div className="flex-1 text-left">
+          <span className="text-lg font-bold text-text-primary">
+            {match.team2}
+          </span>
+        </div>
+      </div>
+
+      {/* Completed results or CTA */}
+      {status === 'completed' && match.score_team1 != null && (
+        <div className="mt-3 text-center">
+          <span className="text-sm text-text-secondary">
+            Score: {match.score_team1} - {match.score_team2}
+          </span>
+        </div>
+      )}
+
+      {status === 'open' && (
+        <div className="mt-3 text-center">
+          <span className="inline-block text-xs font-semibold text-accent-purple bg-accent-purple/10 px-3 py-1 rounded-lg">
+            Place Bet
+          </span>
+        </div>
+      )}
+    </Link>
+  );
+}
