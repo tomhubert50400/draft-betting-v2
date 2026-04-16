@@ -1,0 +1,5 @@
+{
+  "name": "lol-draft-betting-v2",
+  "private": true,
+  "workspaces": ["server", "client"]
+}
