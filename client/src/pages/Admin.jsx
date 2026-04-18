@@ -147,7 +147,7 @@ function MatchesTab() {
                     {m.team1} vs {m.team2}
                   </p>
                   <p className="text-xs text-text-muted">
-                    {m.status} | {m.format} G{m.game_number}
+                    {m.status} · {m.best_of?.toUpperCase()} · Game {m.game_number || 1}
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 ml-2">
