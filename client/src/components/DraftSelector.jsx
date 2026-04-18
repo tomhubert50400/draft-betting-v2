@@ -74,10 +74,10 @@ export default function DraftSelector({ match, onSubmit, existingBet, canBrowse 
     return (
       <button
         key={key}
-        onClick={() => !disabled && setActiveSlot({ team, role })}
-        disabled={disabled}
+        onClick={() => canBrowse && setActiveSlot({ team, role })}
+        disabled={!canBrowse}
         className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all min-w-0 ${
-          disabled
+          !canBrowse
             ? 'border-white/5 cursor-default'
             : 'border-white/10 hover:border-accent-purple/40 hover:bg-bg-hover cursor-pointer'
         } ${pick ? 'bg-bg-hover/50' : 'bg-bg-primary/50'}`}
