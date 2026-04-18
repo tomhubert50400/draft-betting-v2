@@ -84,6 +84,7 @@ export default function Dashboard() {
         title="In Progress"
         matches={locked}
         emptyText="No matches in progress"
+        betMatchIds={betMatchIds}
       />
       <MatchSection
         title="Recent Results"
