@@ -112,27 +112,13 @@ export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
             <Link
               key={m.id}
               to={`/match/${m.id}`}
-              className="flex items-center justify-between gap-3 p-3 rounded-lg bg-bg-card hover:bg-bg-hover transition-colors border border-white/5"
+              className="block p-3 rounded-lg bg-bg-card hover:bg-bg-hover transition-colors border border-white/5"
             >
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <span className="text-xs font-bold text-accent-purple bg-accent-purple/10 px-2 py-1 rounded whitespace-nowrap">
+              {/* Top row: Game label + score */}
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <span className="text-xs font-bold text-accent-purple bg-accent-purple/10 px-2 py-0.5 rounded whitespace-nowrap">
                   Game {m.game_number || 1}
                 </span>
-                {m.status === 'completed' ? (
-                  <div className="flex items-center gap-1.5 text-sm whitespace-nowrap min-w-0">
-                    <span className={`font-semibold truncate ${m.winner === 'team1' ? 'text-green-400' : 'text-accent-pink'}`}>{m.team1}</span>
-                    <span className={`font-bold ${score1 > score2 ? 'text-green-400' : 'text-text-muted'}`}>{score1}</span>
-                    <span className="text-text-muted text-xs">-</span>
-                    <span className={`font-bold ${score2 > score1 ? 'text-green-400' : 'text-text-muted'}`}>{score2}</span>
-                    <span className={`font-semibold truncate ${m.winner === 'team2' ? 'text-green-400' : 'text-accent-pink'}`}>{m.team2}</span>
-                  </div>
-                ) : m.status === 'locked' ? (
-                  <span className="text-xs text-amber-400 font-semibold">In progress</span>
-                ) : (
-                  <span className="text-xs text-accent-cyan font-semibold">Open</span>
-                )}
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
                 {(() => {
                   const bet = betsByMatch?.get(m.id);
                   if (!bet) return null;
@@ -146,10 +132,22 @@ export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
                   }
                   return <span className="text-[10px] font-semibold text-green-400 whitespace-nowrap">✓ Bet</span>;
                 })()}
-                <svg className="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
               </div>
+
+              {/* Bottom row: teams + score */}
+              {m.status === 'completed' ? (
+                <div className="flex items-center justify-center gap-2 text-sm whitespace-nowrap">
+                  <span className={`font-semibold ${m.winner === 'team1' ? 'text-green-400' : 'text-accent-pink'}`}>{m.team1}</span>
+                  <span className={`font-bold ${score1 > score2 ? 'text-green-400' : 'text-text-muted'}`}>{score1}</span>
+                  <span className="text-text-muted text-xs">-</span>
+                  <span className={`font-bold ${score2 > score1 ? 'text-green-400' : 'text-text-muted'}`}>{score2}</span>
+                  <span className={`font-semibold ${m.winner === 'team2' ? 'text-green-400' : 'text-accent-pink'}`}>{m.team2}</span>
+                </div>
+              ) : m.status === 'locked' ? (
+                <p className="text-center text-xs text-amber-400 font-semibold">In progress</p>
+              ) : (
+                <p className="text-center text-xs text-accent-cyan font-semibold">Open</p>
+              )}
             </Link>
           ))}
         </div>
