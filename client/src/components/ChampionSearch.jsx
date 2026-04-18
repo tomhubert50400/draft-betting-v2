@@ -50,21 +50,18 @@ export default function ChampionSearch({ role, onSelect, onClose }) {
       list = list.filter((c) => c.name.toLowerCase().includes(q));
     }
 
-    if (filter === 'preferred' && champStats?.length) {
+    if (filter === 'preferred') {
+      if (!champStats?.length) return [];
       const statsMap = new Map(champStats.map((s) => [s.id, s]));
-      // score = picks * (1 + winrate). 0 picks = 0
-      const scoreOf = (c) => {
-        const s = statsMap.get(c.id);
-        if (!s || !s.picks) return 0;
-        const wr = s.hits / s.picks;
-        return s.picks * (1 + wr);
-      };
-      return [...list].sort((a, b) => {
-        const sa = scoreOf(a);
-        const sb = scoreOf(b);
-        if (sb !== sa) return sb - sa;
-        return a.name.localeCompare(b.name);
-      });
+      const scoreOf = (s) => s.picks * (1 + s.hits / s.picks);
+      return list
+        .filter((c) => statsMap.get(c.id)?.picks > 0)
+        .sort((a, b) => {
+          const sa = scoreOf(statsMap.get(a.id));
+          const sb = scoreOf(statsMap.get(b.id));
+          if (sb !== sa) return sb - sa;
+          return a.name.localeCompare(b.name);
+        });
     }
 
     return [...list].sort((a, b) => a.name.localeCompare(b.name));
