@@ -14,7 +14,7 @@ const STATUS_LABELS = {
 };
 
 function formatCountdown(ms) {
-  if (ms <= 0) return 'Locking soon...';
+  if (ms <= 0) return 'soon...';
   const totalSeconds = Math.floor(ms / 1000);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
