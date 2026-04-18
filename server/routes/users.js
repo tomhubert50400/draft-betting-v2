@@ -28,7 +28,7 @@ router.get('/leaderboard', (req, res) => {
 router.get('/:id', (req, res) => {
   const db = getDb();
   const user = db.prepare(`
-    SELECT id, discord_username, avatar_url, total_score, created_at
+    SELECT id, discord_username, avatar_url, total_score, is_admin, created_at
     FROM users WHERE id = ?
   `).get(req.params.id);
 
