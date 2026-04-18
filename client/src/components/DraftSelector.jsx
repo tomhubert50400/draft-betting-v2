@@ -135,7 +135,7 @@ export default function DraftSelector({ match, onSubmit, existingBet, canBrowse 
       ))}
 
       {/* Submit button */}
-      {!disabled && (
+      {canSubmit && (
         <button
           onClick={handleSubmit}
           disabled={submitting || !hasAnyPick}
