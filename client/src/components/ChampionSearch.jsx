@@ -158,8 +158,8 @@ export default function ChampionSearch({ role, playerName, onSelect, onClose }) 
                       {champ.name}
                     </span>
                     {stat && stat.picks > 0 && (
-                      <span className="absolute top-0.5 right-0.5 text-[9px] font-bold text-accent-cyan bg-bg-primary/80 px-1 rounded">
-                        {stat.picks}
+                      <span className="absolute top-0.5 right-0.5 text-[9px] font-bold text-accent-cyan bg-bg-primary/90 px-1 rounded leading-tight">
+                        {stat.picks}g {Math.round(100 * stat.wins / stat.picks)}%
                       </span>
                     )}
                   </button>
