@@ -1,8 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useChampions } from '../contexts/ChampionsContext';
-import { useAuth } from '../contexts/AuthContext';
-import { fetchChampionStats } from '../api/users';
+import { fetchPlayerChampionStats } from '../api/players';
 import { getChampionsForRole } from '../data/championRoles';
 
 const buildFilters = (role) => [
