@@ -29,6 +29,7 @@ app.use('/api/matches', matchRoutes);
 app.use('/api/bets', betRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/players', playerRoutes);
 
 const { authRequired } = require('./middleware/auth');
 const { adminRequired } = require('./middleware/admin');
