@@ -75,6 +75,37 @@ export default function Leaderboard() {
         <p className="text-text-secondary text-sm mt-1">Top predictors ranked by score</p>
       </div>
 
+      {/* Filter */}
+      <div className="mb-4">
+        <label className="block text-xs uppercase tracking-wider text-text-muted mb-2">Filter</label>
+        <select
+          value={filter.kind === 'all' ? 'all' : `${filter.kind}:${filter.id}`}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v === 'all') return setFilter({ kind: 'all' });
+            const [kind, id] = v.split(':');
+            setFilter({ kind, id });
+          }}
+          className="w-full px-3 py-2 rounded-lg bg-bg-card border border-white/10 text-text-primary text-sm focus:outline-none focus:border-accent-purple/50"
+        >
+          <option value="all">All time</option>
+          {filterOptions.series.length > 0 && (
+            <optgroup label="Series">
+              {filterOptions.series.map((o) => (
+                <option key={`series:${o.id}`} value={`series:${o.id}`}>{o.label}</option>
+              ))}
+            </optgroup>
+          )}
+          {filterOptions.matches.length > 0 && (
+            <optgroup label="Matches">
+              {filterOptions.matches.map((o) => (
+                <option key={`match:${o.id}`} value={`match:${o.id}`}>{o.label}</option>
+              ))}
+            </optgroup>
+          )}
+        </select>
+      </div>
+
       {rows.length === 0 ? (
         <div className="bg-bg-card rounded-xl border border-white/5 p-8 text-center">
           <p className="text-text-muted text-sm">No rankings yet. Be the first to bet!</p>
