@@ -87,11 +87,12 @@ export default function MatchCard({ match, hasBet }) {
         </div>
       </div>
 
-      {/* Completed results or CTA */}
-      {status === 'completed' && match.score_team1 != null && (
+      {/* Completed results: show winner */}
+      {status === 'completed' && match.winner && (
         <div className="mt-3 text-center">
-          <span className="text-sm text-text-secondary">
-            Score: {match.score_team1} - {match.score_team2}
+          <span className="text-xs text-text-secondary">Won by </span>
+          <span className="text-xs font-bold text-green-400">
+            {match.winner === 'team1' ? match.team1 : match.team2}
           </span>
         </div>
       )}
