@@ -110,7 +110,7 @@ export default function MatchBet() {
           }`}>
             {match.status?.toUpperCase()}
           </span>
-          {match.format && <span>{match.format}</span>}
+          {match.best_of && <span>{match.best_of.toUpperCase()}</span>}
           {match.game_number && <span>Game {match.game_number}</span>}
         </div>
       </div>
