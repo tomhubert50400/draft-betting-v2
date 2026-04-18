@@ -13,6 +13,7 @@ const matchRoutes = require('./routes/matches');
 const betRoutes = require('./routes/bets');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
+const playerRoutes = require('./routes/players');
 
 const app = express();
 const server = http.createServer(app);
