@@ -285,10 +285,11 @@ function SettingsTab() {
   };
 
   // Sync lock delay from settings when data loads
-  const currentDelay = settings?.lock_delay_minutes;
-  if (currentDelay != null && lockDelay === '') {
-    setLockDelay(String(currentDelay));
-  }
+  useEffect(() => {
+    if (settings?.lock_delay_minutes != null && lockDelay === '') {
+      setLockDelay(String(settings.lock_delay_minutes));
+    }
+  }, [settings, lockDelay]);
 
   return (
     <div className="space-y-6">
