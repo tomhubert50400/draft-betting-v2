@@ -169,6 +169,7 @@ export default function DraftSelector({ match, onSubmit, existingBet, canBrowse 
       {activeSlot && (
         <ChampionSearch
           role={activeSlot.role}
+          playerName={activeSlot.playerName}
           onSelect={handleSelect}
           onClose={() => setActiveSlot(null)}
         />
