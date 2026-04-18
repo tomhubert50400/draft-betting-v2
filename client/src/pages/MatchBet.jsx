@@ -158,15 +158,6 @@ export default function MatchBet() {
         </div>
       </div>
 
-      {/* Show score if completed */}
-      {isCompleted && existingBet && existingBet.score != null && (
-        <div className="mt-4 bg-bg-card rounded-xl border border-white/5 p-4 text-center">
-          <p className="text-text-secondary text-xs mb-1">Your score</p>
-          <p className="text-2xl font-bold bg-gradient-accent bg-clip-text text-transparent">
-            {existingBet.score}
-          </p>
-        </div>
-      )}
     </div>
   );
 }
