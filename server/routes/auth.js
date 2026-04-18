@@ -106,4 +106,60 @@ router.get('/discord/callback', async (req, res) => {
   }
 });
 
+// Verify a pending-claim token and return the candidate info (for the claim page)
+function verifyPending(token) {
+  const payload = jwt.verify(token, process.env.JWT_SECRET);
+  if (payload.purpose !== 'claim') throw new Error('Invalid pending token');
+  return payload;
+}
+
+router.post('/claim', express.json(), (req, res) => {
+  const { pending } = req.body;
+  if (!pending) return res.status(400).json({ error: 'pending token required' });
+
+  let payload;
+  try { payload = verifyPending(pending); }
+  catch { return res.status(401).json({ error: 'Invalid or expired pending token' }); }
+
+  const db = getDb();
+  // Re-check candidate is still claimable (still fb_)
+  const candidate = db.prepare(
+    "SELECT * FROM users WHERE id = ? AND discord_id LIKE 'fb_%'"
+  ).get(payload.candidateUserId);
+  if (!candidate) return res.status(409).json({ error: 'Candidate already claimed or not found' });
+
+  // Make sure no other user is already using this discord_id (race condition)
+  const existing = db.prepare('SELECT id FROM users WHERE discord_id = ?').get(payload.discordId);
+  if (existing) return res.status(409).json({ error: 'This Discord account is already linked to another user' });
+
+  db.prepare(
+    'UPDATE users SET discord_id = ?, discord_username = ?, avatar_url = ? WHERE id = ?'
+  ).run(payload.discordId, payload.discordUsername, payload.avatarUrl, candidate.id);
+
+  const token = jwt.sign({ userId: candidate.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  res.json({ token });
+});
+
+router.post('/claim-skip', express.json(), (req, res) => {
+  const { pending } = req.body;
+  if (!pending) return res.status(400).json({ error: 'pending token required' });
+
+  let payload;
+  try { payload = verifyPending(pending); }
+  catch { return res.status(401).json({ error: 'Invalid or expired pending token' }); }
+
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM users WHERE discord_id = ?').get(payload.discordId);
+  if (existing) {
+    const token = jwt.sign({ userId: existing.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    return res.json({ token });
+  }
+
+  const result = db.prepare(
+    'INSERT INTO users (discord_id, discord_username, avatar_url) VALUES (?, ?, ?)'
+  ).run(payload.discordId, payload.discordUsername, payload.avatarUrl);
+  const token = jwt.sign({ userId: result.lastInsertRowid }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  res.json({ token });
+});
+
 module.exports = router;
