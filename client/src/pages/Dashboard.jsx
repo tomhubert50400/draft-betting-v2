@@ -48,6 +48,7 @@ function MatchSection({ title, matches, emptyText, betMatchIds, betsByMatch }) {
               key={g.matches[0].series_id}
               matches={g.matches}
               betMatchIds={betMatchIds}
+              betsByMatch={betsByMatch}
             />
           ) : (
             <MatchCard
