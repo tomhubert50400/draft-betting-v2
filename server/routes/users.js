@@ -35,8 +35,8 @@ router.get('/:id', (req, res) => {
   if (!user) return res.status(404).json({ error: 'User not found' });
 
   user.badges = db.prepare(
-    'SELECT badge_name, unlocked_at FROM badges WHERE user_id = ?'
-  ).all(user.id);
+    'SELECT badge_name FROM badges WHERE user_id = ?'
+  ).all(user.id).map(b => b.badge_name);
 
   const stats = db.prepare(`
     SELECT COUNT(*) as total_bets,
