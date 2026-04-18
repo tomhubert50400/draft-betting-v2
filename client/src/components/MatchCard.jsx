@@ -98,9 +98,18 @@ export default function MatchCard({ match, hasBet }) {
 
       {status === 'open' && (
         <div className="mt-3 text-center">
-          <span className="inline-block text-xs font-semibold text-accent-purple bg-accent-purple/10 px-3 py-1 rounded-lg">
-            Place Bet
-          </span>
+          {hasBet ? (
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-400 bg-green-500/10 px-3 py-1 rounded-lg border border-green-500/20">
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Bet placed
+            </span>
+          ) : (
+            <span className="inline-block text-xs font-semibold text-accent-purple bg-accent-purple/10 px-3 py-1 rounded-lg">
+              Place Bet
+            </span>
+          )}
         </div>
       )}
     </Link>
