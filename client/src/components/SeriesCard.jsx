@@ -76,6 +76,7 @@ export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
+          </div>
         </div>
 
         <div className="flex items-center justify-center gap-4">
