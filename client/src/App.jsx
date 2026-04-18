@@ -24,6 +24,7 @@ export default function App() {
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/discord-callback" element={<DiscordCallback />} />
+          <Route path="/claim-account" element={<ClaimAccount />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
