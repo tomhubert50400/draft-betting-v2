@@ -8,6 +8,7 @@ import DraftSelector from '../components/DraftSelector';
 
 export default function MatchBet() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [message, setMessage] = useState(null);
