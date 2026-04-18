@@ -80,14 +80,14 @@ export default function Leaderboard() {
                   className="flex items-center gap-2 min-w-0"
                 >
                   <img
-                    src={entry.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(entry.username)}&background=7c3aed&color=fff&size=32`}
+                    src={entry.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(entry.discord_username)}&background=7c3aed&color=fff&size=32`}
                     alt=""
                     className="w-7 h-7 rounded-full ring-1 ring-white/10 shrink-0"
                   />
                   <span className={`text-sm font-medium truncate ${
                     isCurrentUser ? 'text-accent-purple' : 'text-text-primary'
                   }`}>
-                    {entry.username}
+                    {entry.discord_username}
                   </span>
                 </Link>
 
