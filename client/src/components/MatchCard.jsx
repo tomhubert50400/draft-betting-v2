@@ -13,6 +13,20 @@ const STATUS_LABELS = {
   completed: 'Completed',
 };
 
+function formatMatchDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const isTomorrow = d.toDateString() === tomorrow.toDateString();
+  const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  if (sameDay) return `Aujourd'hui ${time}`;
+  if (isTomorrow) return `Demain ${time}`;
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
 function formatCountdown(ms) {
   if (ms <= 0) return 'soon...';
   const totalSeconds = Math.floor(ms / 1000);
