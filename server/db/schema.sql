@@ -70,6 +70,19 @@ CREATE TABLE IF NOT EXISTS team_rosters (
   last_updated TEXT DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS player_champion_stats (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  player_name TEXT NOT NULL,
+  champion_id TEXT NOT NULL,
+  champion_name TEXT NOT NULL,
+  picks INTEGER DEFAULT 0,
+  wins INTEGER DEFAULT 0,
+  last_updated TEXT DEFAULT (datetime('now')),
+  UNIQUE(player_name, champion_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pcs_player ON player_champion_stats(player_name);
+
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
