@@ -72,6 +72,19 @@ export default function MatchBet() {
         Back
       </Link>
 
+      {/* Login prompt - first element if not logged in */}
+      {!user && isOpen && (
+        <div className="bg-bg-card rounded-xl border border-white/5 p-5 text-center mb-4 flex items-center justify-between gap-4">
+          <p className="text-text-secondary text-sm">Connecte-toi pour parier</p>
+          <Link
+            to="/login"
+            className="inline-block px-5 py-2 rounded-xl font-semibold text-sm bg-gradient-accent text-white hover:opacity-90 transition-opacity whitespace-nowrap"
+          >
+            Login with Discord
+          </Link>
+        </div>
+      )}
+
       {/* Match header */}
       <div className="bg-bg-card rounded-xl border border-white/5 p-5 mb-4">
         <div className="flex items-center justify-center gap-4 mb-2">
@@ -105,19 +118,6 @@ export default function MatchBet() {
         </div>
       )}
 
-      {/* Login prompt */}
-      {!user && isOpen && (
-        <div className="bg-bg-card rounded-xl border border-white/5 p-6 text-center mb-4">
-          <p className="text-text-secondary text-sm mb-3">Login to place your bet</p>
-          <Link
-            to="/login"
-            className="inline-block px-6 py-2 rounded-xl font-semibold text-sm bg-gradient-accent text-white hover:opacity-90 transition-opacity"
-          >
-            Login with Discord
-          </Link>
-        </div>
-      )}
-
       {/* Draft selector */}
       <div className="bg-bg-card rounded-xl border border-white/5 p-4">
         <h2 className="text-sm font-semibold text-text-secondary mb-4">
@@ -131,7 +131,8 @@ export default function MatchBet() {
           match={match}
           onSubmit={(predictions) => mutation.mutateAsync(predictions)}
           existingBet={existingBet}
-          disabled={!isOpen || !user}
+          canBrowse={true}
+          canSubmit={isOpen && !!user}
         />
       </div>
 
