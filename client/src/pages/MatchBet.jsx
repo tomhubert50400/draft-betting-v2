@@ -92,6 +92,14 @@ export default function MatchBet() {
             </span>
           </div>
         )}
+        {isCompleted && existingBet && existingBet.score != null && (
+          <div className="flex items-center justify-center gap-1.5 mb-2 text-xs">
+            <span className="text-text-secondary">Your score:</span>
+            <span className="font-bold bg-gradient-accent bg-clip-text text-transparent">
+              {existingBet.score}
+            </span>
+          </div>
+        )}
         <div className="flex items-center justify-center gap-2 text-xs text-text-muted">
           <span className={`px-2 py-0.5 rounded-full border font-semibold ${
             isOpen
