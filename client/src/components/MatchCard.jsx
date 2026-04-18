@@ -66,10 +66,10 @@ export default function MatchCard({ match, hasBet }) {
           )}
         </div>
         {status === 'open' && timeLeft !== null && (
-          <span className="text-xs font-mono">
-            <span className="text-text-muted">Locking in </span>
-            <span className="text-accent-cyan">{formatCountdown(timeLeft)}</span>
-          </span>
+          <div className="flex flex-col items-end leading-tight">
+            <span className="text-[10px] uppercase tracking-wider text-text-muted">Locking in</span>
+            <span className="text-sm font-mono font-bold text-accent-cyan">{formatCountdown(timeLeft)}</span>
+          </div>
         )}
       </div>
 
