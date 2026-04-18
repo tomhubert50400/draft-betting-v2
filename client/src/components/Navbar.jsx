@@ -61,12 +61,12 @@ export default function Navbar() {
               className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-bg-hover transition-colors"
             >
               <img
-                src={user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=7c3aed&color=fff&size=32`}
+                src={user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.discord_username)}&background=7c3aed&color=fff&size=32`}
                 alt=""
                 className="w-7 h-7 rounded-full ring-2 ring-accent-purple/40"
               />
               <span className="text-sm font-medium text-text-primary hidden sm:inline">
-                {user.username}
+                {user.discord_username}
               </span>
             </Link>
           ) : (
