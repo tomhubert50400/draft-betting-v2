@@ -67,21 +67,32 @@ export default function DraftSelector({ match, onSubmit, existingBet, canBrowse 
 
   const hasAnyPick = Object.values(picks).some(Boolean);
 
+  const ROLE_TO_KEY = { Top: 'Top', Jungle: 'Jungle', Mid: 'Mid', Bot: 'Bot', Support: 'Support' };
+  const getPlayerName = (team, role) => {
+    const teamRoster = match?.rosters?.[team];
+    return teamRoster?.[ROLE_TO_KEY[role]] || null;
+  };
+
   const renderSlot = (team, role) => {
     const key = `${team}_${role}`;
     const pick = picks[key];
+    const playerName = getPlayerName(team, role);
 
     return (
-      <button
-        key={key}
-        onClick={() => canBrowse && setActiveSlot({ team, role })}
-        disabled={!canBrowse}
-        className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all min-w-0 ${
-          !canBrowse
-            ? 'border-white/5 cursor-default'
-            : 'border-white/10 hover:border-accent-purple/40 hover:bg-bg-hover cursor-pointer'
-        } ${pick ? 'bg-bg-hover/50' : 'bg-bg-primary/50'}`}
-      >
+      <div key={key} className="flex flex-col gap-1 min-w-0">
+        {/* Player name */}
+        <span className="text-[10px] text-text-secondary text-center truncate font-medium">
+          {playerName || '\u00A0'}
+        </span>
+        <button
+          onClick={() => canBrowse && setActiveSlot({ team, role, playerName })}
+          disabled={!canBrowse}
+          className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all min-w-0 ${
+            !canBrowse
+              ? 'border-white/5 cursor-default'
+              : 'border-white/10 hover:border-accent-purple/40 hover:bg-bg-hover cursor-pointer'
+          } ${pick ? 'bg-bg-hover/50' : 'bg-bg-primary/50'}`}
+        >
         {pick ? (
           <img
             src={getChampionImageUrl(pick.id)}
