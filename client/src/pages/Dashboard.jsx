@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchMatches } from '../api/matches';
+import { fetchMyBets } from '../api/bets';
+import { useAuth } from '../contexts/AuthContext';
 import MatchCard from '../components/MatchCard';
 
-function MatchSection({ title, matches, emptyText }) {
+function MatchSection({ title, matches, emptyText, betMatchIds }) {
   if (matches.length === 0) {
     return (
       <section className="mb-8">
