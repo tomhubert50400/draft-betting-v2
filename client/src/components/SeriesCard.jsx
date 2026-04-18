@@ -111,9 +111,19 @@ export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                {betMatchIds?.has(m.id) && (
-                  <span className="text-[10px] font-semibold text-green-400">✓ Bet</span>
-                )}
+                {(() => {
+                  const bet = betsByMatch?.get(m.id);
+                  if (!bet) return null;
+                  if (m.status === 'completed' && bet.score != null) {
+                    return (
+                      <span className="text-[11px] font-semibold">
+                        <span className="text-text-muted">Your score:</span>{' '}
+                        <span className="bg-gradient-accent bg-clip-text text-transparent font-bold">{bet.score}</span>
+                      </span>
+                    );
+                  }
+                  return <span className="text-[10px] font-semibold text-green-400">✓ Bet</span>;
+                })()}
                 <svg className="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
