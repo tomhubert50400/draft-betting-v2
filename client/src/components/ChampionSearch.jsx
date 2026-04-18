@@ -10,9 +10,8 @@ const buildFilters = (role) => [
   { id: 'preferred', label: 'Preferred' },
 ];
 
-export default function ChampionSearch({ role, onSelect, onClose }) {
+export default function ChampionSearch({ role, playerName, onSelect, onClose }) {
   const { champions, getChampionImageUrl, loading } = useChampions();
-  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('role');
   const inputRef = useRef(null);
