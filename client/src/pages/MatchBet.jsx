@@ -133,7 +133,7 @@ export default function MatchBet() {
             match={match}
             onSubmit={(predictions) => mutation.mutateAsync(predictions)}
             existingBet={existingBet}
-            canBrowse={!!user}
+            canBrowse={!!user && isOpen}
             canSubmit={isOpen && !!user}
           />
         </div>
