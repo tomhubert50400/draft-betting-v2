@@ -90,6 +90,7 @@ export default function Dashboard() {
         title="Recent Results"
         matches={completed}
         emptyText="No completed matches yet"
+        betMatchIds={betMatchIds}
       />
     </div>
   );
