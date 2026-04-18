@@ -67,9 +67,9 @@ export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
               {totalGames} {totalGames > 1 ? 'games' : 'game'}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {dateLabel && (
-              <span className="text-[11px] text-text-muted font-medium">{dateLabel}</span>
+              <span className="text-[11px] text-text-muted font-medium whitespace-nowrap">{dateLabel}</span>
             )}
             <svg
             className={`w-4 h-4 text-text-muted transition-transform ${expanded ? 'rotate-180' : ''}`}
