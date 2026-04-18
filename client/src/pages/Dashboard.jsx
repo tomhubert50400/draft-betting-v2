@@ -29,10 +29,17 @@ function MatchSection({ title, matches, emptyText, betMatchIds }) {
 }
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { data: matches, isLoading, error } = useQuery({
     queryKey: ['matches'],
     queryFn: fetchMatches,
   });
+  const { data: myBets } = useQuery({
+    queryKey: ['myBets'],
+    queryFn: fetchMyBets,
+    enabled: !!user,
+  });
+  const betMatchIds = new Set((myBets || []).map((b) => b.match_id));
 
   if (isLoading) {
     return (
