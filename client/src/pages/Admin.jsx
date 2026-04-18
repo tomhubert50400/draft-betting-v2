@@ -34,7 +34,7 @@ function MatchesTab() {
     mutationFn: createMatch,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['matches'] });
-      setForm({ team1: '', team2: '', format: 'BO1', game_number: 1, event_id: '' });
+      setForm({ team1: '', team2: '', best_of: 'bo1', scheduled_time: '', event_id: '' });
     },
   });
 
