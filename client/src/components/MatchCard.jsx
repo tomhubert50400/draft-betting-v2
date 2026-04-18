@@ -65,18 +65,18 @@ export default function MatchCard({ match, hasBet }) {
       to={`/match/${match.id}`}
       className="block bg-bg-card rounded-xl border border-white/5 hover:border-accent-purple/30 hover:shadow-lg hover:shadow-accent-purple/5 transition-all duration-200 p-4"
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${STATUS_STYLES[status]}`}>
+      <div className="flex items-center justify-between mb-3 gap-2">
+        <div className="flex items-center gap-2 min-w-0 flex-wrap">
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${STATUS_STYLES[status]}`}>
             {STATUS_LABELS[status]}
           </span>
           {formatLabel && (
-            <span className="text-xs text-text-muted font-medium">
+            <span className="text-xs text-text-muted font-medium whitespace-nowrap">
               {formatLabel}
             </span>
           )}
           {gameLabel && (
-            <span className="text-xs text-text-secondary font-medium bg-bg-hover px-2 py-0.5 rounded">
+            <span className="text-xs text-text-secondary font-medium bg-bg-hover px-2 py-0.5 rounded whitespace-nowrap">
               {gameLabel}
             </span>
           )}
