@@ -57,6 +57,7 @@ export default function MatchCard({ match, hasBet }) {
   const status = match.status || 'open';
   const formatLabel = match.best_of?.toUpperCase() || '';
   const gameLabel = match.game_number ? `Game ${match.game_number}` : '';
+  const dateLabel = formatMatchDate(match.scheduled_time || match.completed_at);
 
   return (
     <Link
