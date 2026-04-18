@@ -31,6 +31,18 @@ async function pollMatches() {
   const db = getDb();
 
   try {
+    // Auto-lock any open match whose lock_at has passed (regardless of source)
+    const expired = db.prepare(`
+      SELECT id FROM matches
+      WHERE status = 'open' AND lock_at IS NOT NULL AND lock_at <= datetime('now')
+    `).all();
+    for (const { id } of expired) {
+      db.prepare("UPDATE matches SET status = 'locked', locked_at = datetime('now') WHERE id = ?").run(id);
+      const updated = db.prepare('SELECT * FROM matches WHERE id = ?').get(id);
+      console.log(`Match ${id} auto-locked (timer expired)`);
+      broadcast({ type: 'match_updated', match: updated });
+    }
+
     const now = new Date();
     const windowEnd = new Date(now.getTime() + POLLING.UPCOMING_WINDOW);
 
