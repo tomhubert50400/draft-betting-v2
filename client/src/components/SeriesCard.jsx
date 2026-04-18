@@ -44,6 +44,8 @@ export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
 
   const formatLabel = first.best_of?.toUpperCase() || '';
   const totalGames = sorted.length;
+  const dateRefMatch = sorted[sorted.length - 1];
+  const dateLabel = formatMatchDate(dateRefMatch.completed_at || dateRefMatch.scheduled_time);
 
   return (
     <div className="bg-bg-card rounded-xl border border-white/5 hover:border-accent-purple/30 transition-all overflow-hidden">
