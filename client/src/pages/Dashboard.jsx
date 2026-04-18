@@ -115,18 +115,21 @@ export default function Dashboard() {
         matches={open}
         emptyText="No upcoming matches right now"
         betMatchIds={betMatchIds}
+        betsByMatch={betsByMatch}
       />
       <MatchSection
         title="In Progress"
         matches={locked}
         emptyText="No matches in progress"
         betMatchIds={betMatchIds}
+        betsByMatch={betsByMatch}
       />
       <MatchSection
         title="Recent Results"
         matches={completed}
         emptyText="No completed matches yet"
         betMatchIds={betMatchIds}
+        betsByMatch={betsByMatch}
       />
     </div>
   );
