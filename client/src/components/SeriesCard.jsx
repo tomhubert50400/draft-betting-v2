@@ -82,17 +82,18 @@ export default function SeriesCard({ matches, betMatchIds }) {
               to={`/match/${m.id}`}
               className="flex items-center justify-between gap-3 p-3 rounded-lg bg-bg-card hover:bg-bg-hover transition-colors border border-white/5"
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <span className="text-xs font-bold text-accent-purple bg-accent-purple/10 px-2 py-1 rounded whitespace-nowrap">
                   Game {m.game_number || 1}
                 </span>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${STATUS_STYLES[m.status || 'open']}`}>
-                  {m.status?.toUpperCase()}
-                </span>
-                {m.status === 'completed' && m.winner && (
+                {m.status === 'completed' && m.winner ? (
                   <span className="text-xs text-text-secondary truncate">
-                    Won by <span className="font-semibold text-text-primary">{m.winner === 'team1' ? m.team1 : m.team2}</span>
+                    Won by <span className="font-bold text-accent-cyan">{m.winner === 'team1' ? m.team1 : m.team2}</span>
                   </span>
+                ) : m.status === 'locked' ? (
+                  <span className="text-xs text-amber-400 font-semibold">In progress</span>
+                ) : (
+                  <span className="text-xs text-accent-cyan font-semibold">Open</span>
                 )}
               </div>
               <div className="flex items-center gap-2">
