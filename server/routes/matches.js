@@ -45,6 +45,20 @@ router.get('/:id', (req, res) => {
   match.result_rosters = match.result_rosters ? JSON.parse(match.result_rosters) : null;
   match.rosters = match.rosters ? JSON.parse(match.rosters) : null;
 
+  // Series score (BO3/BO5)
+  if (match.series_id && match.best_of !== 'bo1') {
+    const games = db.prepare(`
+      SELECT team1, team2, winner FROM matches
+      WHERE series_id = ? AND status = 'completed' AND winner IS NOT NULL
+    `).all(match.series_id);
+    let t1 = 0, t2 = 0;
+    for (const g of games) {
+      if (g.winner === 'team1') t1++;
+      else if (g.winner === 'team2') t2++;
+    }
+    match.series_score = { team1: t1, team2: t2 };
+  }
+
   res.json(match);
 });
 
