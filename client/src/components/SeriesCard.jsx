@@ -63,7 +63,7 @@ export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
             {formatLabel && (
               <span className="text-xs text-text-muted font-medium">{formatLabel}</span>
             )}
-            <span className="text-xs text-text-secondary font-medium bg-bg-hover px-2 py-0.5 rounded">
+            <span className="text-xs text-text-secondary font-medium bg-bg-hover px-2 py-0.5 rounded whitespace-nowrap">
               {totalGames} {totalGames > 1 ? 'games' : 'game'}
             </span>
           </div>
