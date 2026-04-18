@@ -118,7 +118,7 @@ export default function MatchBet() {
         <div className="relative">
           {/* Blur overlay when not logged in */}
           {!user && isOpen && (
-            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-bg-card/40 rounded-xl flex flex-col items-center justify-center gap-3">
+            <div className="absolute -inset-2 z-10 backdrop-blur-[2px] bg-bg-card/20 rounded-2xl flex flex-col items-center justify-center gap-3">
               <p className="text-text-secondary text-sm font-medium">Connecte-toi pour parier</p>
               <Link
                 to="/login"
