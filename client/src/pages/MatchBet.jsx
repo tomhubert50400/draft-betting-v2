@@ -29,9 +29,9 @@ export default function MatchBet() {
   const mutation = useMutation({
     mutationFn: (predictions) => placeBet(id, predictions),
     onSuccess: () => {
-      setMessage({ type: 'success', text: existingBet ? 'Bet updated!' : 'Bet placed!' });
       queryClient.invalidateQueries({ queryKey: ['myBets'] });
       queryClient.invalidateQueries({ queryKey: ['match', id] });
+      navigate('/');
     },
     onError: (err) => {
       setMessage({ type: 'error', text: err.message || 'Failed to place bet' });
