@@ -7,6 +7,7 @@ import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import DiscordCallback from './pages/DiscordCallback';
+import ClaimAccount from './pages/ClaimAccount';
 import Admin from './pages/Admin';
 
 export default function App() {
