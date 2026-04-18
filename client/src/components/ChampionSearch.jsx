@@ -111,7 +111,7 @@ export default function ChampionSearch({ role, playerName, onSelect, onClose }) 
         {/* Filter tabs */}
         <div className="px-4 pb-2 flex gap-1.5">
           {buildFilters(role).map((f) => {
-            const disabled = f.id === 'preferred' && !user;
+            const disabled = f.id === 'preferred' && !playerName;
             const active = filter === f.id;
             return (
               <button
