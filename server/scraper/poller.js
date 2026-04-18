@@ -268,6 +268,13 @@ async function processResults(matchId, apiDraft, rosters, winner) {
   scoreTransaction();
 
   const updatedMatch = db.prepare('SELECT * FROM matches WHERE id = ?').get(matchId);
+  // Aggregate player champion stats from this completed match
+  try {
+    const { processMatch } = require('./playerStats');
+    processMatch(db, updatedMatch);
+  } catch (err) {
+    console.error('playerStats.processMatch failed:', err.message);
+  }
   updatedMatch.result_draft = JSON.parse(updatedMatch.result_draft);
   broadcast({ type: 'match_updated', match: updatedMatch });
 
