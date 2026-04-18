@@ -8,6 +8,20 @@ const STATUS_STYLES = {
   completed: 'bg-text-muted/20 text-text-muted border-text-muted/30',
 };
 
+function formatMatchDate(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const isTomorrow = d.toDateString() === tomorrow.toDateString();
+  const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  if (sameDay) return `Aujourd'hui ${time}`;
+  if (isTomorrow) return `Demain ${time}`;
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
 export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
   const [expanded, setExpanded] = useState(false);
 
