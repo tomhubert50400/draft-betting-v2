@@ -80,12 +80,14 @@ export default function MatchCard({ match, hasBet }) {
             </span>
           )}
         </div>
-        {status === 'open' && timeLeft !== null && (
+        {status === 'open' && timeLeft !== null ? (
           <div className="flex flex-col items-end leading-tight">
             <span className="text-[10px] uppercase tracking-wider text-text-muted">Locking in</span>
             <span className="text-sm font-mono font-bold text-accent-cyan">{formatCountdown(timeLeft)}</span>
           </div>
-        )}
+        ) : dateLabel ? (
+          <span className="text-[11px] text-text-muted font-medium">{dateLabel}</span>
+        ) : null}
       </div>
 
       {/* Teams */}
