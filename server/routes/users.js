@@ -5,16 +5,30 @@ const router = express.Router();
 
 router.get('/leaderboard', (req, res) => {
   const db = getDb();
+  const { match_id, series_id } = req.query;
+
+  // Build the bet filter
+  let betFilter = "b.status = 'scored'";
+  const params = [];
+  if (match_id) {
+    betFilter += " AND b.match_id = ?";
+    params.push(match_id);
+  } else if (series_id) {
+    betFilter += " AND b.match_id IN (SELECT id FROM matches WHERE series_id = ?)";
+    params.push(series_id);
+  }
+
   const users = db.prepare(`
-    SELECT u.id, u.discord_username, u.avatar_url, u.total_score,
+    SELECT u.id, u.discord_username, u.avatar_url,
+           COALESCE(SUM(b.score), 0) as total_score,
            COUNT(b.id) as total_bets,
            SUM(CASE WHEN b.is_perfect = 1 THEN 1 ELSE 0 END) as perfect_scores
     FROM users u
-    LEFT JOIN bets b ON u.id = b.user_id AND b.status = 'scored'
+    LEFT JOIN bets b ON u.id = b.user_id AND ${betFilter}
     GROUP BY u.id
     HAVING total_bets > 0
-    ORDER BY u.total_score DESC
-  `).all();
+    ORDER BY total_score DESC
+  `).all(...params);
 
   const badgeStmt = db.prepare('SELECT badge_name FROM badges WHERE user_id = ?');
   const result = users.map(u => ({
