@@ -51,25 +51,54 @@ router.get('/discord/callback', async (req, res) => {
 
     const discord = await userRes.json();
     const db = getDb();
-
-    let user = db.prepare('SELECT * FROM users WHERE discord_id = ?').get(discord.id);
+    const username = discord.global_name || discord.username;
     const avatarUrl = discord.avatar
       ? `https://cdn.discordapp.com/avatars/${discord.id}/${discord.avatar}.png`
       : null;
 
-    if (!user) {
-      const result = db.prepare(
-        'INSERT INTO users (discord_id, discord_username, avatar_url) VALUES (?, ?, ?)'
-      ).run(discord.id, discord.global_name || discord.username, avatarUrl);
-      user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
-    } else {
+    let user = db.prepare('SELECT * FROM users WHERE discord_id = ?').get(discord.id);
+
+    if (user) {
+      // Existing user: just refresh display info
       db.prepare(
         'UPDATE users SET discord_username = ?, avatar_url = ? WHERE id = ?'
-      ).run(discord.global_name || discord.username, avatarUrl, user.id);
+      ).run(username, avatarUrl, user.id);
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+      return res.redirect(`${FRONTEND}/discord-callback?token=${token}`);
     }
 
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    // No match by discord_id. Check for legacy fb_ accounts with same username
+    const candidate = db.prepare(
+      "SELECT id, discord_username, total_score, (SELECT COUNT(*) FROM bets WHERE user_id = users.id) as bets FROM users WHERE discord_id LIKE 'fb_%' AND LOWER(discord_username) = LOWER(?)"
+    ).get(username);
 
+    if (candidate) {
+      // Issue a short-lived pending-claim token containing the Discord identity + candidate
+      const pending = jwt.sign(
+        {
+          purpose: 'claim',
+          discordId: discord.id,
+          discordUsername: username,
+          avatarUrl,
+          candidateUserId: candidate.id,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '10m' }
+      );
+      const params = new URLSearchParams({
+        pending,
+        candidate_username: candidate.discord_username,
+        candidate_score: String(candidate.total_score),
+        candidate_bets: String(candidate.bets),
+      });
+      return res.redirect(`${FRONTEND}/claim-account?${params}`);
+    }
+
+    // No legacy match: create a fresh account
+    const result = db.prepare(
+      'INSERT INTO users (discord_id, discord_username, avatar_url) VALUES (?, ?, ?)'
+    ).run(discord.id, username, avatarUrl);
+    const token = jwt.sign({ userId: result.lastInsertRowid }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.redirect(`${FRONTEND}/discord-callback?token=${token}`);
   } catch (err) {
     console.error('Discord auth error:', err);
