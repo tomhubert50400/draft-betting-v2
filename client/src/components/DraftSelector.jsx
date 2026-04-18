@@ -108,6 +108,7 @@ export default function DraftSelector({ match, onSubmit, existingBet, canBrowse 
           {pick ? pick.name : '--'}
         </span>
       </button>
+      </div>
     );
   };
 
