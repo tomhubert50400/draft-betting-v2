@@ -57,9 +57,11 @@ function MatchesTab() {
     e.preventDefault();
     if (!form.team1.trim() || !form.team2.trim()) return;
     createMut.mutate({
-      ...form,
-      game_number: Number(form.game_number),
-      event_id: form.event_id || undefined,
+      team1: form.team1.trim(),
+      team2: form.team2.trim(),
+      best_of: form.best_of,
+      scheduled_time: form.scheduled_time || null,
+      event_id: form.event_id ? Number(form.event_id) : null,
     });
   };
 
