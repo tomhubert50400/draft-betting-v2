@@ -22,9 +22,10 @@ function formatMatchDate(iso) {
   tomorrow.setDate(tomorrow.getDate() + 1);
   const isTomorrow = d.toDateString() === tomorrow.toDateString();
   const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-  if (sameDay) return `Aujourd'hui ${time}`;
+  if (sameDay) return `${time}`;
   if (isTomorrow) return `Demain ${time}`;
-  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const day = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }).replace('.', '');
+  return `${day} ${time}`;
 }
 
 function formatCountdown(ms) {
