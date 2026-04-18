@@ -91,21 +91,18 @@ function MatchesTab() {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <select
-              value={form.format}
-              onChange={(e) => setForm({ ...form, format: e.target.value })}
+              value={form.best_of}
+              onChange={(e) => setForm({ ...form, best_of: e.target.value })}
               className="px-3 py-2 rounded-lg bg-bg-primary border border-white/10 text-text-primary text-sm focus:outline-none focus:border-accent-purple/50"
             >
-              <option value="BO1">BO1</option>
-              <option value="BO3">BO3</option>
-              <option value="BO5">BO5</option>
+              <option value="bo1">BO1</option>
+              <option value="bo3">BO3</option>
+              <option value="bo5">BO5</option>
             </select>
             <input
-              type="number"
-              min="1"
-              max="5"
-              placeholder="Game #"
-              value={form.game_number}
-              onChange={(e) => setForm({ ...form, game_number: e.target.value })}
+              type="datetime-local"
+              value={form.scheduled_time}
+              onChange={(e) => setForm({ ...form, scheduled_time: e.target.value })}
               className="px-3 py-2 rounded-lg bg-bg-primary border border-white/10 text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:border-accent-purple/50"
             />
             <input
