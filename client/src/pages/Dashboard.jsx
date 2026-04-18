@@ -26,7 +26,7 @@ function groupBySeries(matches) {
   return groups.sort((a, b) => (a.sortKey || '').localeCompare(b.sortKey || ''));
 }
 
-function MatchSection({ title, matches, emptyText, betMatchIds }) {
+function MatchSection({ title, matches, emptyText, betMatchIds, betsByMatch }) {
   if (matches.length === 0) {
     return (
       <section className="mb-8">
