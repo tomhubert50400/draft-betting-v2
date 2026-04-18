@@ -98,11 +98,11 @@ export default function SeriesCard({ matches, betMatchIds }) {
                 </span>
                 {m.status === 'completed' ? (
                   <div className="flex items-center gap-1.5 text-sm">
-                    <span className={`font-semibold ${m.winner === 'team1' ? 'text-text-primary' : 'text-text-muted'}`}>{m.team1}</span>
-                    <span className={`font-bold ${score1 > score2 ? 'text-accent-cyan' : 'text-text-muted'}`}>{score1}</span>
+                    <span className={`font-semibold ${m.winner === 'team1' ? 'text-green-400' : 'text-accent-pink'}`}>{m.team1}</span>
+                    <span className={`font-bold ${score1 > score2 ? 'text-green-400' : 'text-text-muted'}`}>{score1}</span>
                     <span className="text-text-muted text-xs">-</span>
-                    <span className={`font-bold ${score2 > score1 ? 'text-accent-cyan' : 'text-text-muted'}`}>{score2}</span>
-                    <span className={`font-semibold ${m.winner === 'team2' ? 'text-text-primary' : 'text-text-muted'}`}>{m.team2}</span>
+                    <span className={`font-bold ${score2 > score1 ? 'text-green-400' : 'text-text-muted'}`}>{score2}</span>
+                    <span className={`font-semibold ${m.winner === 'team2' ? 'text-green-400' : 'text-accent-pink'}`}>{m.team2}</span>
                   </div>
                 ) : m.status === 'locked' ? (
                   <span className="text-xs text-amber-400 font-semibold">In progress</span>
