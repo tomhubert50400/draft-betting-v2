@@ -74,6 +74,7 @@ export default function Dashboard() {
     enabled: !!user,
   });
   const betMatchIds = new Set((myBets || []).map((b) => b.match_id));
+  const betsByMatch = new Map((myBets || []).map((b) => [b.match_id, b]));
 
   if (isLoading) {
     return (
