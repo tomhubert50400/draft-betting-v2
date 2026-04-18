@@ -50,12 +50,12 @@ export default function Profile() {
       <div className="bg-bg-card rounded-xl border border-white/5 p-6 mb-6">
         <div className="flex items-start gap-4">
           <img
-            src={profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.username)}&background=7c3aed&color=fff&size=80`}
+            src={profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.discord_username)}&background=7c3aed&color=fff&size=80`}
             alt=""
             className="w-16 h-16 rounded-full ring-2 ring-accent-purple/30 shrink-0"
           />
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-text-primary truncate">{profile.username}</h1>
+            <h1 className="text-xl font-bold text-text-primary truncate">{profile.discord_username}</h1>
             {memberSince && (
               <p className="text-xs text-text-muted mt-0.5">Member since {memberSince}</p>
             )}
