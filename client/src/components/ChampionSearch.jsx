@@ -25,9 +25,9 @@ export default function ChampionSearch({ role, playerName, onSelect, onClose }) 
   }, [onClose]);
 
   const { data: champStats } = useQuery({
-    queryKey: ['championStats', user?.id],
-    queryFn: () => fetchChampionStats(user.id),
-    enabled: !!user && filter === 'preferred',
+    queryKey: ['playerChampionStats', playerName],
+    queryFn: () => fetchPlayerChampionStats(playerName),
+    enabled: !!playerName && filter === 'preferred',
     staleTime: 60_000,
   });
 
