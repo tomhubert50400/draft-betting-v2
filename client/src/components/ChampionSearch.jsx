@@ -84,7 +84,7 @@ export default function ChampionSearch({ role, playerName, onSelect, onClose }) 
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
           <h3 className="text-sm font-semibold text-text-primary">
-            {role ? `Select ${role} Champion` : 'Select Champion'}
+            {playerName ? `${playerName} (${role})` : role ? `Select ${role} Champion` : 'Select Champion'}
           </h3>
           <button
             onClick={onClose}
