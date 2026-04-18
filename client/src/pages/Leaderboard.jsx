@@ -1,15 +1,53 @@
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { fetchLeaderboard } from '../api/users';
+import { fetchMatches } from '../api/matches';
 import { useAuth } from '../contexts/AuthContext';
 import BadgeDisplay from '../components/BadgeDisplay';
 
 export default function Leaderboard() {
   const { user } = useAuth();
+  const [filter, setFilter] = useState({ kind: 'all' }); // 'all' | { kind: 'series', id } | { kind: 'match', id }
+
+  const { data: matches } = useQuery({
+    queryKey: ['matches'],
+    queryFn: fetchMatches,
+  });
+
+  // Build filter options grouped by series
+  const filterOptions = useMemo(() => {
+    const list = Array.isArray(matches) ? matches : [];
+    const seriesMap = new Map();
+    const standaloneMatches = [];
+    for (const m of list) {
+      if (m.status !== 'completed') continue;
+      if (m.series_id && m.best_of !== 'bo1') {
+        if (!seriesMap.has(m.series_id)) seriesMap.set(m.series_id, []);
+        seriesMap.get(m.series_id).push(m);
+      } else {
+        standaloneMatches.push(m);
+      }
+    }
+    const seriesOpts = [...seriesMap.entries()].map(([id, ms]) => ({
+      kind: 'series',
+      id,
+      label: `${ms[0].team1} vs ${ms[0].team2} (${ms[0].best_of?.toUpperCase()})`,
+      matches: ms,
+    }));
+    const matchOpts = standaloneMatches.map((m) => ({
+      kind: 'match',
+      id: m.id,
+      label: `${m.team1} vs ${m.team2}${m.game_number ? ` G${m.game_number}` : ''}`,
+    }));
+    return { series: seriesOpts, matches: matchOpts };
+  }, [matches]);
+
+  const queryParams = filter.kind === 'all' ? {} : { [`${filter.kind}_id`]: filter.id };
 
   const { data: leaderboard, isLoading, error } = useQuery({
-    queryKey: ['leaderboard'],
-    queryFn: fetchLeaderboard,
+    queryKey: ['leaderboard', filter.kind, filter.id],
+    queryFn: () => fetchLeaderboard(queryParams),
   });
 
   if (isLoading) {
