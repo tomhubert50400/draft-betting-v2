@@ -3,6 +3,28 @@ import { fetchMatches } from '../api/matches';
 import { fetchMyBets } from '../api/bets';
 import { useAuth } from '../contexts/AuthContext';
 import MatchCard from '../components/MatchCard';
+import SeriesCard from '../components/SeriesCard';
+
+function groupBySeries(matches) {
+  // Returns array of either { type: 'single', match } or { type: 'series', matches }
+  const bySeries = new Map();
+  const singles = [];
+  for (const m of matches) {
+    if (m.series_id && m.best_of && m.best_of !== 'bo1') {
+      if (!bySeries.has(m.series_id)) bySeries.set(m.series_id, []);
+      bySeries.get(m.series_id).push(m);
+    } else {
+      singles.push(m);
+    }
+  }
+  const groups = [];
+  for (const [, ms] of bySeries) {
+    if (ms.length === 1) groups.push({ type: 'single', match: ms[0], sortKey: ms[0].scheduled_time });
+    else groups.push({ type: 'series', matches: ms, sortKey: ms[0].scheduled_time });
+  }
+  for (const m of singles) groups.push({ type: 'single', match: m, sortKey: m.scheduled_time });
+  return groups.sort((a, b) => (a.sortKey || '').localeCompare(b.sortKey || ''));
+}
 
 function MatchSection({ title, matches, emptyText, betMatchIds }) {
   if (matches.length === 0) {
