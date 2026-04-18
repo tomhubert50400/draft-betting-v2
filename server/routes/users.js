@@ -68,4 +68,39 @@ router.get('/:id/bets', (req, res) => {
   res.json(parsed);
 });
 
+router.get('/:id/champion-stats', (req, res) => {
+  const db = getDb();
+  const bets = db.prepare(`
+    SELECT b.predictions, b.status, m.result_draft
+    FROM bets b
+    JOIN matches m ON b.match_id = m.id
+    WHERE b.user_id = ?
+  `).all(req.params.id);
+
+  // stats[champId] = { picks, hits }
+  const stats = {};
+  const ROLES = ['top', 'jungle', 'mid', 'bot', 'support'];
+
+  for (const bet of bets) {
+    let preds, result;
+    try { preds = JSON.parse(bet.predictions); } catch { continue; }
+    try { result = bet.result_draft ? JSON.parse(bet.result_draft) : null; } catch { result = null; }
+
+    for (const team of ['team1', 'team2']) {
+      for (const role of ROLES) {
+        const pick = preds[`${team}_${role}`];
+        if (!pick?.id) continue;
+        if (!stats[pick.id]) stats[pick.id] = { id: pick.id, name: pick.name, picks: 0, hits: 0 };
+        stats[pick.id].picks += 1;
+        if (result) {
+          const actual = result[`${team}_${role}`];
+          if (actual?.id === pick.id) stats[pick.id].hits += 1;
+        }
+      }
+    }
+  }
+
+  res.json(Object.values(stats));
+});
+
 module.exports = router;
