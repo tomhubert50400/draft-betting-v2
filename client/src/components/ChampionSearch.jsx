@@ -1,24 +1,37 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useChampions } from '../contexts/ChampionsContext';
+import { useAuth } from '../contexts/AuthContext';
+import { fetchChampionStats } from '../api/users';
 import { getChampionsForRole } from '../data/championRoles';
+
+const FILTERS = [
+  { id: 'role', label: 'Top champs' },
+  { id: 'all', label: 'All' },
+  { id: 'preferred', label: 'Preferred' },
+];
 
 export default function ChampionSearch({ role, onSelect, onClose }) {
   const { champions, getChampionImageUrl, loading } = useChampions();
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('role');
   const inputRef = useRef(null);
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+  useEffect(() => { inputRef.current?.focus(); }, []);
 
-  // Close on Escape
   useEffect(() => {
-    function handleKey(e) {
-      if (e.key === 'Escape') onClose();
-    }
+    function handleKey(e) { if (e.key === 'Escape') onClose(); }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose]);
+
+  const { data: champStats } = useQuery({
+    queryKey: ['championStats', user?.id],
+    queryFn: () => fetchChampionStats(user.id),
+    enabled: !!user && filter === 'preferred',
+    staleTime: 60_000,
+  });
 
   const roleChampionNames = useMemo(() => {
     if (!role) return null;
@@ -27,15 +40,35 @@ export default function ChampionSearch({ role, onSelect, onClose }) {
 
   const filtered = useMemo(() => {
     let list = champions;
-    if (roleChampionNames) {
+
+    if (filter === 'role' && roleChampionNames) {
       list = list.filter((c) => roleChampionNames.has(c.name));
     }
+
     if (search.trim()) {
       const q = search.toLowerCase().trim();
       list = list.filter((c) => c.name.toLowerCase().includes(q));
     }
-    return list.sort((a, b) => a.name.localeCompare(b.name));
-  }, [champions, roleChampionNames, search]);
+
+    if (filter === 'preferred' && champStats?.length) {
+      const statsMap = new Map(champStats.map((s) => [s.id, s]));
+      // score = picks * (1 + winrate). 0 picks = 0
+      const scoreOf = (c) => {
+        const s = statsMap.get(c.id);
+        if (!s || !s.picks) return 0;
+        const wr = s.hits / s.picks;
+        return s.picks * (1 + wr);
+      };
+      return [...list].sort((a, b) => {
+        const sa = scoreOf(a);
+        const sb = scoreOf(b);
+        if (sb !== sa) return sb - sa;
+        return a.name.localeCompare(b.name);
+      });
+    }
+
+    return [...list].sort((a, b) => a.name.localeCompare(b.name));
+  }, [champions, roleChampionNames, search, filter, champStats]);
 
   if (loading) {
     return (
@@ -80,34 +113,68 @@ export default function ChampionSearch({ role, onSelect, onClose }) {
           />
         </div>
 
+        {/* Filter tabs */}
+        <div className="px-4 pb-2 flex gap-1.5">
+          {FILTERS.map((f) => {
+            const disabled = f.id === 'preferred' && !user;
+            const active = filter === f.id;
+            return (
+              <button
+                key={f.id}
+                onClick={() => !disabled && setFilter(f.id)}
+                disabled={disabled}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  active
+                    ? 'bg-gradient-accent text-white'
+                    : disabled
+                      ? 'bg-bg-primary/40 text-text-muted/40 cursor-not-allowed'
+                      : 'bg-bg-primary/60 text-text-muted hover:text-text-primary hover:bg-bg-hover'
+                }`}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Grid */}
         <div className="flex-1 overflow-y-auto px-4 pb-4">
           {filtered.length === 0 ? (
             <p className="text-center text-text-muted text-sm py-8">No champions found</p>
           ) : (
             <div className="grid grid-cols-5 sm:grid-cols-6 gap-2">
-              {filtered.map((champ) => (
-                <button
-                  key={champ.id}
-                  onClick={() => onSelect(champ)}
-                  className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-bg-hover transition-colors group"
-                >
-                  <img
-                    src={getChampionImageUrl(champ.id)}
-                    alt={champ.name}
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg ring-1 ring-white/10 group-hover:ring-accent-purple/50 transition-all"
-                    loading="lazy"
-                  />
-                  <span className="text-[10px] text-text-muted group-hover:text-text-primary leading-tight text-center truncate w-full">
-                    {champ.name}
-                  </span>
-                </button>
-              ))}
+              {filtered.map((champ) => {
+                const stat = filter === 'preferred' && champStats
+                  ? champStats.find((s) => s.id === champ.id)
+                  : null;
+                return (
+                  <button
+                    key={champ.id}
+                    onClick={() => onSelect(champ)}
+                    className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-bg-hover transition-colors group relative"
+                  >
+                    <img
+                      src={getChampionImageUrl(champ.id)}
+                      alt={champ.name}
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg ring-1 ring-white/10 group-hover:ring-accent-purple/50 transition-all"
+                      loading="lazy"
+                    />
+                    <span className="text-[10px] text-text-muted group-hover:text-text-primary leading-tight text-center truncate w-full">
+                      {champ.name}
+                    </span>
+                    {stat && stat.picks > 0 && (
+                      <span className="absolute top-0.5 right-0.5 text-[9px] font-bold text-accent-cyan bg-bg-primary/80 px-1 rounded">
+                        {stat.picks}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Clear selection option */}
+        {/* Clear selection */}
         <div className="px-4 py-2 border-t border-white/5">
           <button
             onClick={() => onSelect(null)}
