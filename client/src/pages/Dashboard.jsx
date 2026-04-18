@@ -78,6 +78,7 @@ export default function Dashboard() {
         title="Upcoming"
         matches={open}
         emptyText="No upcoming matches right now"
+        betMatchIds={betMatchIds}
       />
       <MatchSection
         title="In Progress"
