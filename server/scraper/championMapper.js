@@ -96,22 +96,17 @@ async function idToName(championId) {
 async function convertDraftToNames(apiDraft) {
   if (!apiDraft) return null;
 
-  const convertedDraft = {
-    team1: {},
-    team2: {},
-  };
-
-  // Convert team1
-  for (const [role, championId] of Object.entries(apiDraft.team1 || {})) {
-    convertedDraft.team1[role] = await idToName(championId);
+  // Flat format: { team1_top: {id, name}, team1_jungle: {...}, team2_top: {...}, ... }
+  const flat = {};
+  for (const team of ['team1', 'team2']) {
+    for (const [role, championId] of Object.entries(apiDraft[team] || {})) {
+      const name = await idToName(championId);
+      // Normalize role to lowercase
+      const r = role.toLowerCase();
+      flat[`${team}_${r}`] = { id: championId, name };
+    }
   }
-
-  // Convert team2
-  for (const [role, championId] of Object.entries(apiDraft.team2 || {})) {
-    convertedDraft.team2[role] = await idToName(championId);
-  }
-
-  return convertedDraft;
+  return flat;
 }
 
 /**
