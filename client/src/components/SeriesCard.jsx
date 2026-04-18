@@ -76,7 +76,17 @@ export default function SeriesCard({ matches, betMatchIds }) {
       {/* Expanded games list */}
       {expanded && (
         <div className="border-t border-white/5 p-3 space-y-2 bg-bg-primary/30">
-          {sorted.map((m) => (
+          {(() => {
+            // Pre-compute running score per game
+            let r1 = 0, r2 = 0;
+            return sorted.map((m) => {
+              if (m.status === 'completed') {
+                if (m.winner === 'team1') r1++;
+                else if (m.winner === 'team2') r2++;
+              }
+              return { match: m, score1: r1, score2: r2 };
+            });
+          })().map(({ match: m, score1, score2 }) => (
             <Link
               key={m.id}
               to={`/match/${m.id}`}
