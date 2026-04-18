@@ -25,8 +25,8 @@ function MatchesTab() {
   const [form, setForm] = useState({
     team1: '',
     team2: '',
-    format: 'BO1',
-    game_number: 1,
+    best_of: 'bo1',
+    scheduled_time: '',
     event_id: '',
   });
 
