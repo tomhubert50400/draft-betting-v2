@@ -80,7 +80,7 @@ export default function ChampionSearch({ role, playerName, onSelect, onClose }) 
       className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-bg-secondary rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] flex flex-col border border-white/10">
+      <div className="bg-bg-secondary rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg h-[85vh] sm:h-[80vh] flex flex-col border border-white/10">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
           <h3 className="text-sm font-semibold text-text-primary">
