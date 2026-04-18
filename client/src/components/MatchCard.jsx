@@ -24,7 +24,7 @@ function formatCountdown(ms) {
   return `${seconds}s`;
 }
 
-export default function MatchCard({ match }) {
+export default function MatchCard({ match, hasBet }) {
   const [timeLeft, setTimeLeft] = useState(null);
 
   useEffect(() => {
