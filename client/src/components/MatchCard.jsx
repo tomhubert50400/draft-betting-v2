@@ -41,7 +41,7 @@ export default function MatchCard({ match, hasBet }) {
   }, [match.status, match.lock_at]);
 
   const status = match.status || 'open';
-  const formatLabel = match.format === 'BO3' ? 'BO3' : match.format === 'BO5' ? 'BO5' : '';
+  const formatLabel = match.best_of?.toUpperCase() || '';
   const gameLabel = match.game_number ? `Game ${match.game_number}` : '';
 
   return (
