@@ -142,11 +142,13 @@ export default function ChampionSearch({ role, playerName, onSelect, onClose }) 
                 const stat = filter === 'preferred' && champStats
                   ? champStats.find((s) => s.id === champ.id)
                   : null;
+                const wr = stat && stat.picks > 0 ? Math.round(100 * stat.wins / stat.picks) : null;
+                const wrColor = wr === null ? '' : wr >= 60 ? 'bg-green-500' : wr >= 40 ? 'bg-amber-400' : 'bg-accent-pink';
                 return (
                   <button
                     key={champ.id}
                     onClick={() => onSelect(champ)}
-                    className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-bg-hover transition-colors group relative"
+                    className="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-bg-hover transition-colors group"
                   >
                     <img
                       src={getChampionImageUrl(champ.id)}
@@ -154,12 +156,20 @@ export default function ChampionSearch({ role, playerName, onSelect, onClose }) 
                       className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg ring-1 ring-white/10 group-hover:ring-accent-purple/50 transition-all"
                       loading="lazy"
                     />
-                    <span className="text-[10px] text-text-muted group-hover:text-text-primary leading-tight text-center truncate w-full">
-                      {champ.name}
-                    </span>
-                    {stat && stat.picks > 0 && (
-                      <span className="absolute top-0.5 right-0.5 text-[9px] font-bold text-accent-cyan bg-bg-primary/90 px-1 rounded leading-tight">
-                        {stat.picks}g {Math.round(100 * stat.wins / stat.picks)}%
+                    {stat && stat.picks > 0 ? (
+                      <div className="w-full flex flex-col gap-0.5">
+                        <div className="flex items-center justify-between gap-1 leading-tight">
+                          <span className="text-[10px] text-text-secondary group-hover:text-text-primary truncate">{champ.name}</span>
+                          <span className="text-[9px] text-text-muted font-medium shrink-0">{stat.picks}g</span>
+                        </div>
+                        <div className="h-1 w-full rounded-full bg-bg-primary overflow-hidden">
+                          <div className={`h-full ${wrColor} transition-all`} style={{ width: `${wr}%` }} />
+                        </div>
+                        <span className="text-[9px] font-semibold text-text-secondary leading-none mt-0.5">{wr}%</span>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-text-muted group-hover:text-text-primary leading-tight text-center truncate w-full">
+                        {champ.name}
                       </span>
                     )}
                   </button>
