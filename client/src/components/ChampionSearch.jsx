@@ -51,7 +51,7 @@ export default function ChampionSearch({ role, playerName, onSelect, onClose }) 
     if (filter === 'preferred') {
       if (!champStats?.length) return [];
       const statsMap = new Map(champStats.map((s) => [s.id, s]));
-      const scoreOf = (s) => s.picks * (1 + s.hits / s.picks);
+      const scoreOf = (s) => s.picks * (1 + s.wins / s.picks);
       return list
         .filter((c) => statsMap.get(c.id)?.picks > 0)
         .sort((a, b) => {
