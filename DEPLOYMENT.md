@@ -4,6 +4,60 @@ Production setup with **Caddy** (reverse proxy + TLS) + **pm2** (Node process) +
 
 ---
 
+## ⚙️ Instructions for autonomous agent (Cowork / Claude Code)
+
+If you (the agent) are executing this guide on behalf of the user, follow these rules:
+
+### Before starting, ask the user for these values upfront (one batched question)
+1. **Project install path** (default: `~/sites/draft-betting`) — confirm where to clone
+2. **Git remote URL** for the v2 repo (private GitHub repo)
+3. **Domain** (default `draft.zerqua.com`) — confirm
+4. **Discord OAuth credentials**:
+   - `DISCORD_CLIENT_ID`
+   - `DISCORD_CLIENT_SECRET`
+   - User must have already added the redirect URI `https://<DOMAIN>/auth/discord/callback` in https://discord.com/developers/applications
+5. **DNS strategy**: A) Direct (port forwarding) or B) Cloudflare Tunnel
+6. **DB strategy**: A) Fresh install (empty DB) or B) Migrate from Firebase or C) Copy existing DB file from elsewhere
+   - If B: ask user to `scp` `firebase-credentials.json` to `server/migration/` after clone
+   - If C: ask user to `scp` the `.db` file to `data/` after clone
+
+### What you can do autonomously
+- Install Homebrew, Node 24, pm2, Caddy, sqlite3, cloudflared
+- Generate `JWT_SECRET` with `openssl rand -hex 64`
+- Clone, `npm install`, `npm run build`
+- Write `.env`, `Caddyfile`, edit cron
+- `pm2 start`, `pm2 save`, follow `pm2 startup` instructions
+- Test endpoints with `curl`
+- Read logs (`pm2 logs`, Caddy logs)
+
+### What requires user interaction (PAUSE and ask)
+- **sudo password**: needed for `brew install`, editing `/etc/caddy/Caddyfile`, `cloudflared service install`, `pm2 startup`
+- **Cloudflare login**: `cloudflared tunnel login` opens a browser — user must complete it
+- **Final validation**: ask the user to load `https://<DOMAIN>` from a phone (off-network) before declaring success
+
+### Verification checkpoints (do NOT skip)
+After each major step, run a verification and report status:
+- After step 1 (clone): `ls package.json && cat .env.example | head -5`
+- After step 4 (DB): `sqlite3 data/draft-betting.db "SELECT COUNT(*) FROM users; SELECT COUNT(*) FROM matches;"`
+- After step 5 (build): `ls client/dist/index.html`
+- After step 6 (pm2): `curl -s http://localhost:3001/api/health` (expect `{"status":"ok",...}`)
+- After step 7 (Caddy): `curl -I https://<DOMAIN>` (expect `HTTP/2 200`)
+- After step 9 (backup): run `./scripts/backup.sh` once and check `backups/` folder
+
+### Failure handling
+- If a brew install fails with permissions → check user is not root, retry with sudo if needed
+- If `npm install` fails on `better-sqlite3` → ensure Xcode CLI tools installed: `xcode-select --install`
+- If Caddy can't get a Let's Encrypt cert → DNS not propagated yet; wait 5 min and retry
+- If pm2 crashes immediately → `pm2 logs draft-betting --lines 50` and report to user
+- **Never proceed past a failed checkpoint silently.** Report the error and ask the user.
+
+### Sensitive data
+- **NEVER print** `JWT_SECRET`, `DISCORD_CLIENT_SECRET`, or `firebase-credentials.json` content in your responses
+- **NEVER commit** these to git (they're in `.gitignore`, but double-check)
+- After deployment success, suggest the user delete `firebase-credentials.json` if migration is done
+
+---
+
 ## 0. Prerequisites on the Mac
 
 ```bash
