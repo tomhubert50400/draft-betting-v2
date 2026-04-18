@@ -96,10 +96,14 @@ export default function SeriesCard({ matches, betMatchIds }) {
                 <span className="text-xs font-bold text-accent-purple bg-accent-purple/10 px-2 py-1 rounded whitespace-nowrap">
                   Game {m.game_number || 1}
                 </span>
-                {m.status === 'completed' && m.winner ? (
-                  <span className="text-xs text-text-secondary truncate">
-                    Won by <span className="font-bold text-accent-cyan">{m.winner === 'team1' ? m.team1 : m.team2}</span>
-                  </span>
+                {m.status === 'completed' ? (
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <span className={`font-semibold ${m.winner === 'team1' ? 'text-text-primary' : 'text-text-muted'}`}>{m.team1}</span>
+                    <span className={`font-bold ${score1 > score2 ? 'text-accent-cyan' : 'text-text-muted'}`}>{score1}</span>
+                    <span className="text-text-muted text-xs">-</span>
+                    <span className={`font-bold ${score2 > score1 ? 'text-accent-cyan' : 'text-text-muted'}`}>{score2}</span>
+                    <span className={`font-semibold ${m.winner === 'team2' ? 'text-text-primary' : 'text-text-muted'}`}>{m.team2}</span>
+                  </div>
                 ) : m.status === 'locked' ? (
                   <span className="text-xs text-amber-400 font-semibold">In progress</span>
                 ) : (
