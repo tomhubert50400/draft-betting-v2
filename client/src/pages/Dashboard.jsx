@@ -21,7 +21,7 @@ function MatchSection({ title, matches, emptyText, betMatchIds }) {
       <h2 className="text-lg font-bold text-text-primary mb-3">{title}</h2>
       <div className="grid gap-3 sm:grid-cols-2">
         {matches.map((match) => (
-          <MatchCard key={match.id} match={match} />
+          <MatchCard key={match.id} match={match} hasBet={betMatchIds?.has(match.id)} />
         ))}
       </div>
     </section>
