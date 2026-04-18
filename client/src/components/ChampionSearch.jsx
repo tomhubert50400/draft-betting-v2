@@ -5,8 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { fetchChampionStats } from '../api/users';
 import { getChampionsForRole } from '../data/championRoles';
 
-const FILTERS = [
-  { id: 'role', label: 'Top champs' },
+const buildFilters = (role) => [
+  { id: 'role', label: role ? `${role} champs` : 'Role' },
   { id: 'all', label: 'All' },
   { id: 'preferred', label: 'Preferred' },
 ];
