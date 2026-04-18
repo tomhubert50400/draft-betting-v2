@@ -12,7 +12,7 @@ const ROLE_ICONS = {
   Support: 'S',
 };
 
-export default function DraftSelector({ match, onSubmit, existingBet, disabled }) {
+export default function DraftSelector({ match, onSubmit, existingBet, canBrowse = true, canSubmit = false }) {
   const { getChampionImageUrl } = useChampions();
 
   // Initialize picks from existing bet or empty
