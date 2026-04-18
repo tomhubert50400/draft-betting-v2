@@ -137,9 +137,9 @@ export default function DraftSelector({ match, onSubmit, existingBet, canBrowse 
           </div>
           {/* Team 1 slot */}
           {renderSlot('team1', role)}
-          {/* Role label (center) */}
-          <div className="flex items-center justify-center">
-            <span className="text-[10px] text-text-muted font-medium">{role}</span>
+          {/* VS label (center) */}
+          <div className="flex items-center justify-center pt-4">
+            <span className="text-[10px] text-text-muted font-bold">VS</span>
           </div>
           {/* Team 2 slot */}
           {renderSlot('team2', role)}
