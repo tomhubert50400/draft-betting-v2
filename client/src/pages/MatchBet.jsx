@@ -115,13 +115,27 @@ export default function MatchBet() {
               ? 'Match results'
               : 'Predictions locked'}
         </h2>
-        <DraftSelector
-          match={match}
-          onSubmit={(predictions) => mutation.mutateAsync(predictions)}
-          existingBet={existingBet}
-          canBrowse={true}
-          canSubmit={isOpen && !!user}
-        />
+        <div className="relative">
+          {/* Blur overlay when not logged in */}
+          {!user && isOpen && (
+            <div className="absolute inset-0 z-10 backdrop-blur-sm bg-bg-card/40 rounded-xl flex flex-col items-center justify-center gap-3">
+              <p className="text-text-secondary text-sm font-medium">Connecte-toi pour parier</p>
+              <Link
+                to="/login"
+                className="px-6 py-2.5 rounded-xl font-semibold text-sm bg-gradient-accent text-white hover:opacity-90 transition-opacity"
+              >
+                Login with Discord
+              </Link>
+            </div>
+          )}
+          <DraftSelector
+            match={match}
+            onSubmit={(predictions) => mutation.mutateAsync(predictions)}
+            existingBet={existingBet}
+            canBrowse={!!user}
+            canSubmit={isOpen && !!user}
+          />
+        </div>
       </div>
 
       {/* Show score if completed */}
