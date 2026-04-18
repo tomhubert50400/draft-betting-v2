@@ -87,7 +87,7 @@ export default function MatchCard({ match, hasBet }) {
             <span className="text-sm font-mono font-bold text-accent-cyan">{formatCountdown(timeLeft)}</span>
           </div>
         ) : dateLabel ? (
-          <span className="text-[11px] text-text-muted font-medium">{dateLabel}</span>
+          <span className="text-[11px] text-text-muted font-medium whitespace-nowrap">{dateLabel}</span>
         ) : null}
       </div>
 
