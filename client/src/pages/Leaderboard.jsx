@@ -15,7 +15,7 @@ export default function Leaderboard() {
     queryFn: fetchMatches,
   });
 
-  // Build filter options grouped by series
+  // Build filter options grouped by series, sorted by date (newest first)
   const filterOptions = useMemo(() => {
     const list = Array.isArray(matches) ? matches : [];
     const seriesMap = new Map();
@@ -29,17 +29,35 @@ export default function Leaderboard() {
         standaloneMatches.push(m);
       }
     }
-    const seriesOpts = [...seriesMap.entries()].map(([id, ms]) => ({
-      kind: 'series',
-      id,
-      label: `${ms[0].team1} vs ${ms[0].team2} (${ms[0].best_of?.toUpperCase()})`,
-      matches: ms,
-    }));
-    const matchOpts = standaloneMatches.map((m) => ({
-      kind: 'match',
-      id: m.id,
-      label: `${m.team1} vs ${m.team2}${m.game_number ? ` G${m.game_number}` : ''}`,
-    }));
+
+    const fmtDate = (iso) => {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+    };
+
+    const seriesOpts = [...seriesMap.entries()]
+      .map(([id, ms]) => {
+        ms.sort((a, b) => (a.game_number || 1) - (b.game_number || 1));
+        const lastDate = ms[ms.length - 1].completed_at || ms[ms.length - 1].scheduled_time;
+        return {
+          kind: 'series',
+          id,
+          label: `${ms[0].team1} vs ${ms[0].team2} (${ms[0].best_of?.toUpperCase()})  ·  ${fmtDate(lastDate)}`,
+          sortKey: lastDate || '',
+        };
+      })
+      .sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+
+    const matchOpts = standaloneMatches
+      .map((m) => ({
+        kind: 'match',
+        id: m.id,
+        label: `${m.team1} vs ${m.team2}${m.game_number ? ` G${m.game_number}` : ''}  ·  ${fmtDate(m.completed_at || m.scheduled_time)}`,
+        sortKey: m.completed_at || m.scheduled_time || '',
+      }))
+      .sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+
     return { series: seriesOpts, matches: matchOpts };
   }, [matches]);
 
