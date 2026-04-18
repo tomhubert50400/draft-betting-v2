@@ -8,7 +8,7 @@ const STATUS_STYLES = {
   completed: 'bg-text-muted/20 text-text-muted border-text-muted/30',
 };
 
-export default function SeriesCard({ matches, betMatchIds }) {
+export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
   const [expanded, setExpanded] = useState(false);
 
   // Sort by game number
