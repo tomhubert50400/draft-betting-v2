@@ -55,13 +55,13 @@ export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
         onClick={() => setExpanded((e) => !e)}
         className="w-full p-4 text-left hover:bg-bg-hover/30 transition-colors"
       >
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${STATUS_STYLES[overallStatus]}`}>
+        <div className="flex items-center justify-between mb-3 gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-wrap">
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap ${STATUS_STYLES[overallStatus]}`}>
               {statusLabel}
             </span>
             {formatLabel && (
-              <span className="text-xs text-text-muted font-medium">{formatLabel}</span>
+              <span className="text-xs text-text-muted font-medium whitespace-nowrap">{formatLabel}</span>
             )}
             <span className="text-xs text-text-secondary font-medium bg-bg-hover px-2 py-0.5 rounded whitespace-nowrap">
               {totalGames} {totalGames > 1 ? 'games' : 'game'}
