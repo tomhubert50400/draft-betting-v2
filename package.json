@@ -1,5 +1,11 @@
 {
   "name": "lol-draft-betting-v2",
   "private": true,
-  "workspaces": ["server", "client"]
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "dependencies": {
+    "firebase-admin": "^13.8.0"
+  }
 }
