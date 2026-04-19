@@ -11,7 +11,9 @@ router.get('/discord', (req, res) => {
     response_type: 'code',
     scope: 'identify',
   });
-  res.redirect(`https://discord.com/api/oauth2/authorize?${params}`);
+  // Use the user-facing /oauth2/authorize URL (not /api/...) so mobile
+  // Universal Links / App Links can deep-link into the Discord app.
+  res.redirect(`https://discord.com/oauth2/authorize?${params}`);
 });
 
 router.get('/discord/callback', async (req, res) => {
