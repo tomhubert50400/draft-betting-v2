@@ -5,12 +5,19 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
   const db = getDb();
+  // Compute 7-day windows in JS to avoid SQLite/ISO datetime comparison quirks
+  const nowMs = Date.now();
+  const in7DaysIso = new Date(nowMs + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const minus7DaysIso = new Date(nowMs - 7 * 24 * 60 * 60 * 1000).toISOString();
+
   const matches = db.prepare(`
     SELECT m.*, e.name as event_name
     FROM matches m
     LEFT JOIN events e ON m.event_id = e.id
-    WHERE m.status IN ('open', 'locked')
-       OR (m.status = 'completed' AND m.completed_at > datetime('now', '-7 days'))
+    WHERE
+      (m.status = 'open' AND (m.scheduled_time IS NULL OR m.scheduled_time <= ?))
+      OR m.status = 'locked'
+      OR (m.status = 'completed' AND m.completed_at > ?)
     ORDER BY
       CASE m.status
         WHEN 'open' THEN 0
@@ -18,7 +25,7 @@ router.get('/', (req, res) => {
         WHEN 'completed' THEN 2
       END,
       m.scheduled_time ASC
-  `).all();
+  `).all(in7DaysIso, minus7DaysIso);
 
   const parsed = matches.map(m => ({
     ...m,
