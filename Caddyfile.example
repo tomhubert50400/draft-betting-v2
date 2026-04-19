@@ -1,0 +1,48 @@
+# Caddyfile for draft.zerqua.com
+# Place at /etc/caddy/Caddyfile or include into your main Caddyfile.
+# Adjust paths to match where you put the project on your Mac.
+
+draft.zerqua.com {
+    # Compression
+    encode zstd gzip
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Adjust CSP if needed (Discord avatars, etc.)
+        -Server
+    }
+
+    # Backend API + auth + WebSocket → Express on :3001
+    @backend {
+        path /api/*
+        path /auth/*
+        path /ws
+        path /ws/*
+    }
+    handle @backend {
+        reverse_proxy localhost:3001
+    }
+
+    # Frontend SPA: serve built static files, fallback to index.html for client routes
+    handle {
+        root * /Users/YOURUSER/draft-betting/client/dist
+        try_files {path} /index.html
+        file_server
+
+        # Cache hashed assets aggressively
+        @assets path /assets/*
+        header @assets Cache-Control "public, max-age=31536000, immutable"
+    }
+
+    # Logs
+    log {
+        output file /var/log/caddy/draft.zerqua.com.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+    }
+}
