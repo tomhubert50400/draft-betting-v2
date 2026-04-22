@@ -367,4 +367,48 @@ function getLockDelay() {
   return minutes * 60 * 1000;
 }
 
-module.exports = { startPoller, stopPoller, pollMatches };
+async function backfillMissingWinners() {
+  const db = getDb();
+  const candidates = db.prepare(
+    "SELECT * FROM matches WHERE status = 'completed' AND winner IS NULL"
+  ).all();
+
+  if (candidates.length === 0) return;
+  console.log(`Backfilling winners for ${candidates.length} completed match(es) with NULL winner...`);
+
+  let fixed = 0;
+  for (const match of candidates) {
+    try {
+      const eventId = match.lolesports_event_id || match.lolesports_match_id;
+      if (!eventId) continue;
+
+      const eventDetails = await getEventDetails(eventId);
+      const gameInfo = eventDetails?.match?.games?.find((g) => g.number === match.game_number);
+      if (!gameInfo) {
+        console.log(`Backfill: match ${match.id}: gameInfo not found`);
+        continue;
+      }
+
+      const winner = determineWinnerSide(gameInfo, match);
+      if (!winner) {
+        console.log(`Backfill: match ${match.id}: still no winner detected`);
+        continue;
+      }
+
+      db.prepare('UPDATE matches SET winner = ? WHERE id = ?').run(winner, match.id);
+      const updated = db.prepare('SELECT * FROM matches WHERE id = ?').get(match.id);
+      updated.result_draft = updated.result_draft ? JSON.parse(updated.result_draft) : null;
+      updated.result_rosters = updated.result_rosters ? JSON.parse(updated.result_rosters) : null;
+      updated.rosters = updated.rosters ? JSON.parse(updated.rosters) : null;
+      broadcast({ type: 'match_updated', match: updated });
+      console.log(`Backfill: match ${match.id} → winner = ${winner}`);
+      fixed++;
+    } catch (err) {
+      console.error(`Backfill failed for match ${match.id}:`, err.message);
+    }
+  }
+
+  console.log(`Backfill done: ${fixed}/${candidates.length} match(es) fixed`);
+}
+
+module.exports = { startPoller, stopPoller, pollMatches, backfillMissingWinners };
