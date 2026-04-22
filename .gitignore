@@ -14,3 +14,12 @@ backups/
 # Firebase credentials (NEVER COMMIT)
 server/migration/firebase-credentials.json
 *-firebase-adminsdk-*.json
+
+# macOS metadata
+._*
+.DS_Store
+
+# Local Claude / Caddy files
+.claude-out.log
+.claude-new-*
+Caddyfile
