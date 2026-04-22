@@ -53,6 +53,7 @@ const PORT = process.env.PORT || 3001;
 initDb();
 initWebSocket(server);
 startPoller();
+backfillMissingWinners().catch((err) => console.error('Backfill error:', err));
 
 function scheduleDailySync() {
   const now = new Date();
