@@ -51,9 +51,13 @@ async function determineWinnerSide(eventDetails, gameInfo, match) {
     if (side) return side;
   }
 
-  // Fallback: feed API end-of-game frame → winner by inhibitors/towers/kills
+  // Fallback: feed API end-of-game frame → winner by inhibitors/towers/kills.
+  // Trust the frame's gameState when still live; if event-details already marks
+  // the game completed, older frames may report 'in_game' — rely on the stats.
   const frame = await getGameLastFrame(gameInfo.id);
-  if (!frame || frame.gameState !== 'finished') return null;
+  if (!frame) return null;
+  const gameCompleted = gameInfo.state === 'completed';
+  if (!gameCompleted && frame.gameState !== 'finished') return null;
 
   const winningSide = pickWinningSide(frame);
   if (!winningSide) return null;
