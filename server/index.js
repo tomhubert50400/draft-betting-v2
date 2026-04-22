@@ -5,7 +5,7 @@ const cors = require('cors');
 const http = require('http');
 const { initDb } = require('./db');
 const { initWebSocket } = require('./ws');
-const { startPoller } = require('./scraper/poller');
+const { startPoller, backfillMissingWinners } = require('./scraper/poller');
 const { syncSchedule } = require('./scraper/scheduleSync');
 
 const authRoutes = require('./routes/auth');
