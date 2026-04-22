@@ -192,18 +192,7 @@ async function tryResolveDraft(match) {
 
     if (team1Picks !== 5 || team2Picks !== 5) return false;
 
-    let winner = null;
-    if (gameInfo.teams) {
-      const winningTeam = gameInfo.teams.find(t => t.result?.outcome === 'win');
-      if (winningTeam) {
-        const winnerName = (winningTeam.name || winningTeam.code || '').toLowerCase();
-        if (winnerName.includes(match.team1.toLowerCase()) || match.team1.toLowerCase().includes(winnerName)) {
-          winner = 'team1';
-        } else if (winnerName.includes(match.team2.toLowerCase()) || match.team2.toLowerCase().includes(winnerName)) {
-          winner = 'team2';
-        }
-      }
-    }
+    const winner = determineWinnerSide(gameInfo, match);
 
     await processResults(match.id, draftData.draft, draftData.rosters, winner);
     return true;
