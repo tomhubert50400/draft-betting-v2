@@ -15,23 +15,40 @@ const ROLE_ICONS = {
 export default function DraftSelector({ match, onSubmit, existingBet, canBrowse = true, canSubmit = false }) {
   const { getChampionImageUrl } = useChampions();
 
-  // Initialize picks from existing bet or empty
+  const isCompletedWithResult = match?.status === 'completed' && !!match?.result_draft;
+
+  // When completed, show the real played draft; otherwise show the user's existing prediction
   const buildInitialPicks = () => {
     const picks = {};
     ROLES.forEach((role) => {
       picks[`team1_${role}`] = null;
       picks[`team2_${role}`] = null;
     });
-    if (existingBet?.predictions) {
-      const preds = existingBet.predictions;
+    const source = isCompletedWithResult ? match.result_draft : existingBet?.predictions;
+    if (source) {
       ROLES.forEach((role) => {
         const key1 = `team1_${role.toLowerCase()}`;
         const key2 = `team2_${role.toLowerCase()}`;
-        if (preds[key1]) picks[`team1_${role}`] = preds[key1];
-        if (preds[key2]) picks[`team2_${role}`] = preds[key2];
+        if (source[key1]) picks[`team1_${role}`] = source[key1];
+        if (source[key2]) picks[`team2_${role}`] = source[key2];
       });
     }
     return picks;
+  };
+
+  // Precompute all played champion ids for fuzzy overlay match
+  const playedChampIds = isCompletedWithResult
+    ? new Set(Object.values(match.result_draft).map((p) => p?.id).filter(Boolean))
+    : null;
+
+  const getOverlayKind = (team, role) => {
+    if (!isCompletedWithResult) return null;
+    const userPred = existingBet?.predictions?.[`${team}_${role.toLowerCase()}`];
+    if (!userPred) return null;
+    const actual = match.result_draft[`${team}_${role.toLowerCase()}`];
+    if (actual && userPred.id === actual.id) return 'exact';
+    if (playedChampIds?.has(userPred.id)) return 'partial';
+    return 'miss';
   };
 
   const [picks, setPicks] = useState(buildInitialPicks);
