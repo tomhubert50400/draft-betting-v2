@@ -81,14 +81,14 @@ export default function MatchBet() {
           <span className="text-text-muted font-bold">VS</span>
           <span className="text-xl font-bold text-text-primary">{match.team2}</span>
         </div>
-        {isCompleted && match.series_score && (
+        {isCompleted && match.winner && (
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className={`text-lg font-bold ${match.winner === 'team1' ? 'text-accent-cyan' : 'text-text-muted'}`}>
-              {match.series_score.team1}
+              {match.winner === 'team1' ? 1 : 0}
             </span>
             <span className="text-text-muted text-sm">-</span>
             <span className={`text-lg font-bold ${match.winner === 'team2' ? 'text-accent-cyan' : 'text-text-muted'}`}>
-              {match.series_score.team2}
+              {match.winner === 'team2' ? 1 : 0}
             </span>
           </div>
         )}
