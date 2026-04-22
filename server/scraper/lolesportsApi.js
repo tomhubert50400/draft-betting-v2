@@ -481,6 +481,26 @@ async function getGameWindow(gameId) {
 }
 
 /**
+ * Fetch the last frame of a completed game's window (feed API requires a past
+ * timestamp aligned to 10s; passing now would 400).
+ * @param {string} gameId
+ * @returns {Promise<Object|null>} Last frame or null if unavailable
+ */
+async function getGameLastFrame(gameId) {
+  const alignedMs = Math.floor((Date.now() - 60000) / 10000) * 10000;
+  const startingTime = new Date(alignedMs).toISOString().slice(0, 19) + '.000Z';
+  const url = `${FEED_API_BASE}/window/${gameId}?startingTime=${startingTime}`;
+
+  const response = await fetch(url);
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  const frames = data?.frames;
+  if (!frames || frames.length === 0) return null;
+  return frames[frames.length - 1];
+}
+
+/**
  * Extract draft picks from game window data
  * @param {Object} windowData - Data from getGameWindow
  * @param {string} firestoreTeam1 - Team1 name from Firestore match (optional, for correct mapping)
@@ -694,6 +714,7 @@ module.exports = {
   getLive,
   getEventDetails,
   getGameWindow,
+  getGameLastFrame,
   getTeams,
   getStandings,
   getAllTrackedSchedules,

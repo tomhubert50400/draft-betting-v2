@@ -2,7 +2,7 @@
 const { getDb } = require('../db');
 const { broadcast } = require('../ws');
 const {
-  getLive, getEventDetails, getGameWindow,
+  getLive, getEventDetails, getGameWindow, getGameLastFrame,
   findMatchInLive, getCurrentGame, isSeriesOver,
   extractDraftFromWindow,
 } = require('./lolesportsApi');
@@ -11,26 +11,59 @@ const { calculateBetScore, checkBadges } = require('./scoring');
 const { POLLING } = require('./config');
 const { normalizeTeamName } = require('./scheduleSync');
 
-function determineWinnerSide(gameInfo, match) {
-  if (!gameInfo?.teams) return null;
-  const winningTeam = gameInfo.teams.find((t) => t.result?.outcome === 'win');
-  if (!winningTeam) return null;
+function mapSeriesTeamToMatch(seriesTeam, match) {
+  if (!seriesTeam) return null;
+  const code = (seriesTeam.code || '').toLowerCase();
+  const normalizedName = seriesTeam.name ? normalizeTeamName(seriesTeam.name) : null;
+  const t1 = match.team1.toLowerCase();
+  const t2 = match.team2.toLowerCase();
 
-  const team1 = match.team1;
-  const team2 = match.team2;
-  const code = (winningTeam.code || '').toLowerCase();
-  const normalizedName = winningTeam.name ? normalizeTeamName(winningTeam.name) : null;
+  if (normalizedName === match.team1) return 'team1';
+  if (normalizedName === match.team2) return 'team2';
+  if (code && code === t1) return 'team1';
+  if (code && code === t2) return 'team2';
 
-  if (normalizedName === team1) return 'team1';
-  if (normalizedName === team2) return 'team2';
-  if (code && code === team1.toLowerCase()) return 'team1';
-  if (code && code === team2.toLowerCase()) return 'team2';
-
-  const winnerLower = (winningTeam.name || winningTeam.code || '').toLowerCase();
-  if (winnerLower && (winnerLower.includes(team1.toLowerCase()) || team1.toLowerCase().includes(winnerLower))) return 'team1';
-  if (winnerLower && (winnerLower.includes(team2.toLowerCase()) || team2.toLowerCase().includes(winnerLower))) return 'team2';
-
+  const fuzzy = (seriesTeam.name || seriesTeam.code || '').toLowerCase();
+  if (fuzzy && (fuzzy.includes(t1) || t1.includes(fuzzy))) return 'team1';
+  if (fuzzy && (fuzzy.includes(t2) || t2.includes(fuzzy))) return 'team2';
   return null;
+}
+
+function pickWinningSide(frame) {
+  const blue = frame?.blueTeam;
+  const red = frame?.redTeam;
+  if (!blue || !red) return null;
+  if (blue.inhibitors !== red.inhibitors) return blue.inhibitors > red.inhibitors ? 'blue' : 'red';
+  if (blue.towers !== red.towers) return blue.towers > red.towers ? 'blue' : 'red';
+  if (blue.totalKills !== red.totalKills) return blue.totalKills > red.totalKills ? 'blue' : 'red';
+  return null;
+}
+
+async function determineWinnerSide(eventDetails, gameInfo, match) {
+  if (!gameInfo?.teams || !gameInfo.id) return null;
+
+  // Primary: lolesports game-level outcome (rarely populated in practice)
+  const winningGameTeam = gameInfo.teams.find((t) => t.result?.outcome === 'win');
+  if (winningGameTeam) {
+    const seriesTeams = eventDetails?.match?.teams || [];
+    const seriesTeam = seriesTeams.find((t) => t.id === winningGameTeam.id) || winningGameTeam;
+    const side = mapSeriesTeamToMatch(seriesTeam, match);
+    if (side) return side;
+  }
+
+  // Fallback: feed API end-of-game frame → winner by inhibitors/towers/kills
+  const frame = await getGameLastFrame(gameInfo.id);
+  if (!frame || frame.gameState !== 'finished') return null;
+
+  const winningSide = pickWinningSide(frame);
+  if (!winningSide) return null;
+
+  const winningSideTeam = gameInfo.teams.find((t) => t.side === winningSide);
+  if (!winningSideTeam) return null;
+
+  const seriesTeams = eventDetails?.match?.teams || [];
+  const seriesTeam = seriesTeams.find((t) => t.id === winningSideTeam.id);
+  return mapSeriesTeamToMatch(seriesTeam, match);
 }
 
 let pollingInterval = null;
@@ -192,7 +225,7 @@ async function tryResolveDraft(match) {
 
     if (team1Picks !== 5 || team2Picks !== 5) return false;
 
-    const winner = determineWinnerSide(gameInfo, match);
+    const winner = await determineWinnerSide(eventDetails, gameInfo, match);
 
     await processResults(match.id, draftData.draft, draftData.rosters, winner);
     return true;
@@ -212,7 +245,7 @@ async function processCompletion(match) {
     const draftData = extractDraftFromWindow(windowData, match.team1, match.team2);
     if (!draftData?.draft) return;
 
-    const winner = determineWinnerSide(gameInfo, match);
+    const winner = await determineWinnerSide(eventDetails, gameInfo, match);
 
     await processResults(match.id, draftData.draft, draftData.rosters, winner);
   } catch (err) {
@@ -389,7 +422,7 @@ async function backfillMissingWinners() {
         continue;
       }
 
-      const winner = determineWinnerSide(gameInfo, match);
+      const winner = await determineWinnerSide(eventDetails, gameInfo, match);
       if (!winner) {
         console.log(`Backfill: match ${match.id}: still no winner detected`);
         continue;
