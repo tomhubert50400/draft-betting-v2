@@ -24,7 +24,7 @@ router.post('/matches', (req, res) => {
 router.put('/matches/:id', (req, res) => {
   const db = getDb();
   const fields = req.body;
-  const allowed = ['team1', 'team2', 'best_of', 'scheduled_time', 'event_id', 'status'];
+  const allowed = ['team1', 'team2', 'best_of', 'scheduled_time', 'event_id', 'status', 'winner'];
   const updates = [];
   const values = [];
 
