@@ -90,10 +90,22 @@ export default function DraftSelector({ match, onSubmit, existingBet, canBrowse 
     return teamRoster?.[ROLE_TO_KEY[role]] || null;
   };
 
+  const OVERLAY_RING = {
+    exact: 'ring-2 ring-green-500 shadow-[0_0_0_2px_rgba(34,197,94,0.25)]',
+    partial: 'ring-2 ring-orange-400 shadow-[0_0_0_2px_rgba(251,146,60,0.25)]',
+    miss: 'ring-2 ring-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.25)]',
+  };
+  const OVERLAY_BORDER = {
+    exact: 'border-green-500/40',
+    partial: 'border-orange-400/40',
+    miss: 'border-red-500/40',
+  };
+
   const renderSlot = (team, role) => {
     const key = `${team}_${role}`;
     const pick = picks[key];
     const playerName = getPlayerName(team, role);
+    const overlay = getOverlayKind(team, role);
 
     return (
       <div key={key} className="flex flex-col gap-1 min-w-0">
@@ -105,16 +117,20 @@ export default function DraftSelector({ match, onSubmit, existingBet, canBrowse 
           onClick={() => canBrowse && setActiveSlot({ team, role, playerName })}
           disabled={!canBrowse}
           className={`flex flex-col items-center gap-1 p-2 rounded-lg border transition-all min-w-0 ${
-            !canBrowse
-              ? 'border-white/5 cursor-default'
-              : 'border-white/10 hover:border-accent-purple/40 hover:bg-bg-hover cursor-pointer'
+            overlay
+              ? OVERLAY_BORDER[overlay]
+              : !canBrowse
+                ? 'border-white/5 cursor-default'
+                : 'border-white/10 hover:border-accent-purple/40 hover:bg-bg-hover cursor-pointer'
           } ${pick ? 'bg-bg-hover/50' : 'bg-bg-primary/50'}`}
         >
         {pick ? (
           <img
             src={getChampionImageUrl(pick.id)}
             alt={pick.name}
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg ring-1 ring-accent-purple/30"
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg ${
+              overlay ? OVERLAY_RING[overlay] : 'ring-1 ring-accent-purple/30'
+            }`}
           />
         ) : (
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-bg-primary border border-dashed border-white/10 flex items-center justify-center">
