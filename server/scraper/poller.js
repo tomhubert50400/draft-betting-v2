@@ -9,6 +9,29 @@ const {
 const { convertDraftToNames } = require('./championMapper');
 const { calculateBetScore, checkBadges } = require('./scoring');
 const { POLLING } = require('./config');
+const { normalizeTeamName } = require('./scheduleSync');
+
+function determineWinnerSide(gameInfo, match) {
+  if (!gameInfo?.teams) return null;
+  const winningTeam = gameInfo.teams.find((t) => t.result?.outcome === 'win');
+  if (!winningTeam) return null;
+
+  const team1 = match.team1;
+  const team2 = match.team2;
+  const code = (winningTeam.code || '').toLowerCase();
+  const normalizedName = winningTeam.name ? normalizeTeamName(winningTeam.name) : null;
+
+  if (normalizedName === team1) return 'team1';
+  if (normalizedName === team2) return 'team2';
+  if (code && code === team1.toLowerCase()) return 'team1';
+  if (code && code === team2.toLowerCase()) return 'team2';
+
+  const winnerLower = (winningTeam.name || winningTeam.code || '').toLowerCase();
+  if (winnerLower && (winnerLower.includes(team1.toLowerCase()) || team1.toLowerCase().includes(winnerLower))) return 'team1';
+  if (winnerLower && (winnerLower.includes(team2.toLowerCase()) || team2.toLowerCase().includes(winnerLower))) return 'team2';
+
+  return null;
+}
 
 let pollingInterval = null;
 
