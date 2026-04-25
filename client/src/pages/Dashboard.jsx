@@ -41,7 +41,7 @@ function MatchSection({ title, matches, emptyText, betMatchIds, betsByMatch }) {
   return (
     <section className="mb-8">
       <h2 className="text-lg font-bold text-text-primary mb-3">{title}</h2>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 items-start sm:grid-cols-2">
         {groupBySeries(matches).map((g) =>
           g.type === 'series' ? (
             <SeriesCard
