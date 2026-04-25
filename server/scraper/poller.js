@@ -29,6 +29,52 @@ function mapSeriesTeamToMatch(seriesTeam, match) {
   return null;
 }
 
+function getTeamWinnerSignal(team) {
+  const outcome = team?.result?.outcome;
+  if (typeof outcome === 'string') {
+    const normalized = outcome.toLowerCase();
+    if (['win', 'won', 'winner', 'victory'].includes(normalized)) return true;
+  }
+
+  return team?.result?.winner === true ||
+    team?.result?.isWinner === true ||
+    team?.winner === true;
+}
+
+function inferWinnerFromSeriesScore(seriesInfo, match) {
+  const teams = seriesInfo?.teams;
+  if (!Array.isArray(teams) || teams.length !== 2) return null;
+
+  const scoredTeams = teams
+    .map((team) => ({
+      team,
+      wins: Number(team?.result?.gameWins ?? 0),
+      side: mapSeriesTeamToMatch(team, match),
+    }))
+    .filter((team) => team.side && Number.isFinite(team.wins));
+
+  if (scoredTeams.length !== 2) return null;
+
+  const [a, b] = scoredTeams;
+  if (a.wins === b.wins) return null;
+
+  const leader = a.wins > b.wins ? a : b;
+  const trailer = a.wins > b.wins ? b : a;
+  const maxGames = match.best_of === 'bo5' ? 5 : match.best_of === 'bo3' ? 3 : 1;
+  const winsNeeded = Math.ceil(maxGames / 2);
+  const completedGames = a.wins + b.wins;
+
+  if (leader.wins < winsNeeded) return null;
+
+  // A sweep means every completed game was won by the series leader.
+  if (trailer.wins === 0 && match.game_number <= leader.wins) return leader.side;
+
+  // In a non-sweep, only the last completed game is safely inferable from the final series score.
+  if (match.game_number === completedGames) return leader.side;
+
+  return null;
+}
+
 function pickWinningSide(frame) {
   const blue = frame?.blueTeam;
   const red = frame?.redTeam;
@@ -40,34 +86,38 @@ function pickWinningSide(frame) {
 }
 
 async function determineWinnerSide(eventDetails, gameInfo, match) {
-  if (!gameInfo?.teams || !gameInfo.id) return null;
+  const seriesInfo = eventDetails?.match;
+  if (!gameInfo?.teams) return inferWinnerFromSeriesScore(seriesInfo, match);
 
-  // Primary: lolesports game-level outcome (rarely populated in practice)
-  const winningGameTeam = gameInfo.teams.find((t) => t.result?.outcome === 'win');
+  // Primary: lolesports game-level outcome. Rarely populated, but cheap when present.
+  const winningGameTeam = gameInfo.teams.find(getTeamWinnerSignal);
   if (winningGameTeam) {
-    const seriesTeams = eventDetails?.match?.teams || [];
+    const seriesTeams = seriesInfo?.teams || [];
     const seriesTeam = seriesTeams.find((t) => t.id === winningGameTeam.id) || winningGameTeam;
     const side = mapSeriesTeamToMatch(seriesTeam, match);
     if (side) return side;
   }
 
-  // Fallback: feed API end-of-game frame → winner by inhibitors/towers/kills.
-  // Trust the frame's gameState when still live; if event-details already marks
-  // the game completed, older frames may report 'in_game' — rely on the stats.
-  const frame = await getGameLastFrame(gameInfo.id);
-  if (!frame) return null;
-  const gameCompleted = gameInfo.state === 'completed';
-  if (!gameCompleted && frame.gameState !== 'finished') return null;
+  // Fallback: feed API end-of-game frame, using inhibitors/towers/kills.
+  // If the frame is unavailable or not decisive, fall through to series score.
+  if (gameInfo.id) {
+    const frame = await getGameLastFrame(gameInfo.id);
+    if (frame) {
+      const gameCompleted = gameInfo.state === 'completed';
+      if (gameCompleted || frame.gameState === 'finished') {
+        const winningSide = pickWinningSide(frame);
+        if (winningSide) {
+          const winningSideTeam = gameInfo.teams.find((t) => t.side === winningSide);
+          const seriesTeams = seriesInfo?.teams || [];
+          const seriesTeam = seriesTeams.find((t) => t.id === winningSideTeam?.id);
+          const side = mapSeriesTeamToMatch(seriesTeam, match);
+          if (side) return side;
+        }
+      }
+    }
+  }
 
-  const winningSide = pickWinningSide(frame);
-  if (!winningSide) return null;
-
-  const winningSideTeam = gameInfo.teams.find((t) => t.side === winningSide);
-  if (!winningSideTeam) return null;
-
-  const seriesTeams = eventDetails?.match?.teams || [];
-  const seriesTeam = seriesTeams.find((t) => t.id === winningSideTeam.id);
-  return mapSeriesTeamToMatch(seriesTeam, match);
+  return inferWinnerFromSeriesScore(seriesInfo, match);
 }
 
 let pollingInterval = null;
@@ -438,7 +488,7 @@ async function backfillMissingWinners() {
       updated.result_rosters = updated.result_rosters ? JSON.parse(updated.result_rosters) : null;
       updated.rosters = updated.rosters ? JSON.parse(updated.rosters) : null;
       broadcast({ type: 'match_updated', match: updated });
-      console.log(`Backfill: match ${match.id} → winner = ${winner}`);
+      console.log(`Backfill: match ${match.id} -> winner = ${winner}`);
       fixed++;
     } catch (err) {
       console.error(`Backfill failed for match ${match.id}:`, err.message);
@@ -448,4 +498,10 @@ async function backfillMissingWinners() {
   console.log(`Backfill done: ${fixed}/${candidates.length} match(es) fixed`);
 }
 
-module.exports = { startPoller, stopPoller, pollMatches, backfillMissingWinners };
+module.exports = {
+  startPoller,
+  stopPoller,
+  pollMatches,
+  backfillMissingWinners,
+  determineWinnerSide,
+};
