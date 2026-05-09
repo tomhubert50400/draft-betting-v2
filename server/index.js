@@ -5,6 +5,7 @@ const cors = require('cors');
 const http = require('http');
 const { initDb } = require('./db');
 const { initWebSocket } = require('./ws');
+const { startDraftWatchMonitor } = require('./draftwatch');
 const { startPoller, backfillMissingWinners } = require('./scraper/poller');
 const { syncSchedule } = require('./scraper/scheduleSync');
 
@@ -52,6 +53,7 @@ const PORT = process.env.PORT || 3001;
 
 initDb();
 initWebSocket(server);
+startDraftWatchMonitor();
 startPoller();
 backfillMissingWinners().catch((err) => console.error('Backfill error:', err));
 
