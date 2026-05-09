@@ -6,6 +6,7 @@ import MatchBet from './pages/MatchBet';
 import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
+import DiscordOpen from './pages/DiscordOpen';
 import DiscordCallback from './pages/DiscordCallback';
 import ClaimAccount from './pages/ClaimAccount';
 import Admin from './pages/Admin';
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/discord-open" element={<DiscordOpen />} />
           <Route path="/discord-callback" element={<DiscordCallback />} />
           <Route path="/claim-account" element={<ClaimAccount />} />
           <Route path="/admin" element={<Admin />} />
