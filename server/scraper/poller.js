@@ -150,21 +150,6 @@ async function pollMatches() {
   const db = getDb();
 
   try {
-    // Auto-lock any open match whose lock_at has passed (regardless of source)
-    const candidates = db.prepare(`
-      SELECT id, lock_at FROM matches
-      WHERE status = 'open' AND lock_at IS NOT NULL
-    `).all();
-    const nowMs = Date.now();
-    for (const c of candidates) {
-      if (new Date(c.lock_at).getTime() <= nowMs) {
-        db.prepare("UPDATE matches SET status = 'locked', locked_at = datetime('now') WHERE id = ?").run(c.id);
-        const updated = db.prepare('SELECT * FROM matches WHERE id = ?').get(c.id);
-        console.log(`Match ${c.id} auto-locked (timer expired)`);
-        broadcast({ type: 'match_updated', match: updated });
-      }
-    }
-
     const now = new Date();
     const windowEnd = new Date(now.getTime() + POLLING.UPCOMING_WINDOW);
 
@@ -221,57 +206,12 @@ async function pollSingleMatch(match, liveData) {
 
   const gameState = currentGame.state?.toLowerCase();
 
-  if (match.status === 'open') {
-    if (match.lock_at && new Date() >= new Date(match.lock_at)) {
-      db.prepare(
-        "UPDATE matches SET status = 'locked', locked_at = datetime('now') WHERE id = ?"
-      ).run(match.id);
-      console.log(`Match ${match.id} locked (timer expired)`);
-      const updated = db.prepare('SELECT * FROM matches WHERE id = ?').get(match.id);
-      broadcast({ type: 'match_updated', match: updated });
-      await tryResolveDraft(match);
-      return;
-    }
-
-    if (!match.lock_at) {
-      const draftStatus = await tryDetectDraftStart(match);
-      if (draftStatus.draftStarted) {
-        const lockDelay = getLockDelay();
-        const lockAt = new Date(Date.now() + lockDelay);
-        db.prepare('UPDATE matches SET lock_at = ? WHERE id = ?')
-          .run(lockAt.toISOString(), match.id);
-        console.log(`Match ${match.id}: draft detected, lock at ${lockAt.toISOString()}`);
-        broadcast({
-          type: 'match_updated',
-          match: { ...match, lock_at: lockAt.toISOString() },
-        });
-      }
-    }
-  }
-
   if (match.status === 'locked') {
     if (gameState === 'completed') {
       await processCompletion(match);
     } else {
       await tryResolveDraft(match);
     }
-  }
-}
-
-async function tryDetectDraftStart(match) {
-  try {
-    const eventDetails = await getEventDetails(match.lolesports_event_id || match.lolesports_match_id);
-    const gameInfo = eventDetails?.match?.games?.find(g => g.number === match.game_number);
-    if (!gameInfo?.id) return { draftStarted: false };
-
-    const windowData = await getGameWindow(gameInfo.id);
-    const draftData = extractDraftFromWindow(windowData, match.team1, match.team2);
-    const team1Picks = Object.keys(draftData?.draft?.team1 || {}).length;
-    const team2Picks = Object.keys(draftData?.draft?.team2 || {}).length;
-
-    return { draftStarted: true, draftComplete: team1Picks === 5 && team2Picks === 5, draftData };
-  } catch {
-    return { draftStarted: false };
   }
 }
 
@@ -460,13 +400,6 @@ function cleanupSeriesIfDecided(seriesId, bestOf) {
   }
 
   console.log(`Series ${seriesId} decided: deleted ${toDelete.length} unplayed game(s)`);
-}
-
-function getLockDelay() {
-  const db = getDb();
-  const row = db.prepare("SELECT value FROM settings WHERE key = 'lock_delay_minutes'").get();
-  const minutes = row ? parseInt(row.value, 10) : 13;
-  return minutes * 60 * 1000;
 }
 
 async function backfillMissingWinners() {
