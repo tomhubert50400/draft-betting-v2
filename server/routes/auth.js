@@ -4,10 +4,32 @@ const { getDb } = require('../db');
 
 const router = express.Router();
 
+function loginUrl(error) {
+  const frontendUrl = process.env.FRONTEND_URL || '/';
+  return `${frontendUrl.replace(/\/?$/, '/') }login?error=${error}`;
+}
+
+function getOAuthConfig() {
+  const config = {
+    clientId: process.env.DISCORD_CLIENT_ID,
+    clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    redirectUri: process.env.DISCORD_REDIRECT_URI,
+    frontendUrl: process.env.FRONTEND_URL,
+    jwtSecret: process.env.JWT_SECRET,
+  };
+
+  return Object.values(config).every(Boolean) ? config : null;
+}
+
 router.get('/discord', (req, res) => {
+  const config = getOAuthConfig();
+  if (!config) {
+    return res.redirect(loginUrl('discord_config_missing'));
+  }
+
   const params = new URLSearchParams({
-    client_id: process.env.DISCORD_CLIENT_ID,
-    redirect_uri: process.env.DISCORD_REDIRECT_URI,
+    client_id: config.clientId,
+    redirect_uri: config.redirectUri,
     response_type: 'code',
     scope: 'identify',
   });
@@ -15,12 +37,17 @@ router.get('/discord', (req, res) => {
     app: `discord://-/oauth2/authorize?${params}`,
     web: `https://discord.com/oauth2/authorize?${params}`,
   });
-  res.redirect(`${process.env.FRONTEND_URL}/discord-open?${bridgeParams}`);
+  res.redirect(`${config.frontendUrl}/discord-open?${bridgeParams}`);
 });
 
 router.get('/discord/callback', async (req, res) => {
+  const config = getOAuthConfig();
+  if (!config) {
+    return res.redirect(loginUrl('discord_config_missing'));
+  }
+
   const { code, error } = req.query;
-  const FRONTEND = process.env.FRONTEND_URL;
+  const FRONTEND = config.frontendUrl;
 
   if (error || !code) {
     return res.redirect(`${FRONTEND}/login?error=discord_denied`);
@@ -31,11 +58,11 @@ router.get('/discord/callback', async (req, res) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        client_id: process.env.DISCORD_CLIENT_ID,
-        client_secret: process.env.DISCORD_CLIENT_SECRET,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: process.env.DISCORD_REDIRECT_URI,
+        redirect_uri: config.redirectUri,
       }),
     });
 
@@ -67,7 +94,7 @@ router.get('/discord/callback', async (req, res) => {
       db.prepare(
         'UPDATE users SET discord_username = ?, avatar_url = ? WHERE id = ?'
       ).run(username, avatarUrl, user.id);
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+      const token = jwt.sign({ userId: user.id }, config.jwtSecret, { expiresIn: '7d' });
       return res.redirect(`${FRONTEND}/discord-callback?token=${token}`);
     }
 
@@ -86,7 +113,7 @@ router.get('/discord/callback', async (req, res) => {
           avatarUrl,
           candidateUserId: candidate.id,
         },
-        process.env.JWT_SECRET,
+        config.jwtSecret,
         { expiresIn: '10m' }
       );
       const params = new URLSearchParams({
@@ -102,7 +129,7 @@ router.get('/discord/callback', async (req, res) => {
     const result = db.prepare(
       'INSERT INTO users (discord_id, discord_username, avatar_url) VALUES (?, ?, ?)'
     ).run(discord.id, username, avatarUrl);
-    const token = jwt.sign({ userId: result.lastInsertRowid }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: result.lastInsertRowid }, config.jwtSecret, { expiresIn: '7d' });
     res.redirect(`${FRONTEND}/discord-callback?token=${token}`);
   } catch (err) {
     console.error('Discord auth error:', err);

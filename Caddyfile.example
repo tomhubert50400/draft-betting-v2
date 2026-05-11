@@ -16,7 +16,7 @@ draft.zerqua.com {
         -Server
     }
 
-    # Backend API + auth + WebSocket → Express on :3001
+    # Backend API + auth + WebSocket → Express on :9999
     @backend {
         path /api/*
         path /auth/*
@@ -24,7 +24,9 @@ draft.zerqua.com {
         path /ws/*
     }
     handle @backend {
-        reverse_proxy localhost:3001
+        reverse_proxy localhost:9999 {
+            flush_interval -1
+        }
     }
 
     # Frontend SPA: serve built static files, fallback to index.html for client routes

@@ -19,6 +19,8 @@ const playerRoutes = require('./routes/players');
 const app = express();
 const server = http.createServer(app);
 
+app.set('trust proxy', 'loopback');
+
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'https://draft.zerqua.com',
   credentials: true,

@@ -1,8 +1,15 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const { user, loading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const error = searchParams.get('error');
+  const errorMessage = error === 'discord_config_missing'
+    ? 'Discord login is not configured yet.'
+    : error
+      ? 'Discord login failed. Please try again.'
+      : null;
 
   if (loading) {
     return (
@@ -27,6 +34,12 @@ export default function Login() {
         <p className="text-text-secondary text-sm mb-8">
           Predict champion picks during Karmine Corp watchparties
         </p>
+
+        {errorMessage && (
+          <p className="mb-4 rounded-xl border border-accent-pink/20 bg-accent-pink/10 px-4 py-3 text-sm text-accent-pink">
+            {errorMessage}
+          </p>
+        )}
 
         <a
           href={discordUrl}

@@ -40,7 +40,7 @@ After each major step, run a verification and report status:
 - After step 1 (clone): `ls package.json && cat .env.example | head -5`
 - After step 4 (DB): `sqlite3 data/draft-betting.db "SELECT COUNT(*) FROM users; SELECT COUNT(*) FROM matches;"`
 - After step 5 (build): `ls client/dist/index.html`
-- After step 6 (pm2): `curl -s http://localhost:3001/api/health` (expect `{"status":"ok",...}`)
+- After step 6 (pm2): `curl -s http://localhost:9999/api/health` (expect `{"status":"ok",...}`)
 - After step 7 (Caddy): `curl -I https://<DOMAIN>` (expect `HTTP/2 200`)
 - After step 9 (backup): run `./scripts/backup.sh` once and check `backups/` folder
 
@@ -114,7 +114,7 @@ Required values:
 - `JWT_SECRET=<the random hex from openssl>`
 - `FRONTEND_URL=https://draft.zerqua.com`
 - `DB_PATH=./data/draft-betting.db`
-- `PORT=3001`
+- `PORT=9999`
 
 ---
 
@@ -189,7 +189,7 @@ pm2 stop draft-betting
 
 Test the API:
 ```bash
-curl http://localhost:3001/api/health
+curl http://localhost:9999/api/health
 # → {"status":"ok","wsClients":0}
 ```
 
@@ -307,7 +307,7 @@ This pulls, rebuilds the front, and restarts pm2.
 **WebSocket disconnects every 30s**
 → Cloudflare proxy may close idle WS. Add to Caddyfile inside the backend handler:
 ```
-reverse_proxy localhost:3001 {
+reverse_proxy localhost:9999 {
   flush_interval -1
 }
 ```

@@ -19,6 +19,11 @@ npm install
 npm run build
 cd ..
 
+STATIC_ROOT="${STATIC_ROOT:-/opt/homebrew/var/www/draft-betting-v2}"
+echo "==> Publishing frontend to $STATIC_ROOT"
+mkdir -p "$STATIC_ROOT"
+rsync -a --delete client/dist/ "$STATIC_ROOT/"
+
 echo "==> Restarting backend (pm2)"
 pm2 restart draft-betting --update-env || pm2 start ecosystem.config.js
 
