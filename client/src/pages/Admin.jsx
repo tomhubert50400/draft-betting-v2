@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,8 +9,6 @@ import {
   lockMatch,
   unlockMatch,
   triggerSync,
-  fetchSettings,
-  updateSettings,
   fetchEvents,
   createEvent,
 } from '../api/admin';
@@ -261,72 +259,12 @@ function EventsTab() {
 }
 
 function SettingsTab() {
-  const queryClient = useQueryClient();
-
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ['settings'],
-    queryFn: fetchSettings,
-  });
-
-  const [lockDelay, setLockDelay] = useState('');
-
-  const updateMut = useMutation({
-    mutationFn: updateSettings,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['settings'] }),
-  });
-
   const syncMut = useMutation({
     mutationFn: triggerSync,
   });
 
-  const handleSave = (e) => {
-    e.preventDefault();
-    updateMut.mutate({ lock_delay_minutes: Number(lockDelay) });
-  };
-
-  // Sync lock delay from settings when data loads
-  useEffect(() => {
-    if (settings?.lock_delay_minutes != null && lockDelay === '') {
-      setLockDelay(String(settings.lock_delay_minutes));
-    }
-  }, [settings, lockDelay]);
-
   return (
     <div className="space-y-6">
-      <div className="bg-bg-card rounded-xl border border-white/5 p-4">
-        <h3 className="text-sm font-semibold text-text-primary mb-3">Settings</h3>
-        {isLoading ? (
-          <div className="flex justify-center py-4">
-            <div className="w-6 h-6 border-2 border-accent-purple border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : (
-          <form onSubmit={handleSave} className="space-y-3">
-            <div>
-              <label className="block text-xs text-text-secondary mb-1">
-                Lock Delay (minutes before match)
-              </label>
-              <input
-                type="number"
-                min="0"
-                value={lockDelay}
-                onChange={(e) => setLockDelay(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-bg-primary border border-white/10 text-text-primary text-sm focus:outline-none focus:border-accent-purple/50"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={updateMut.isPending}
-              className="px-4 py-2 rounded-lg bg-gradient-accent text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {updateMut.isPending ? 'Saving...' : 'Save Settings'}
-            </button>
-            {updateMut.isSuccess && (
-              <p className="text-green-400 text-xs">Saved!</p>
-            )}
-          </form>
-        )}
-      </div>
-
       <div className="bg-bg-card rounded-xl border border-white/5 p-4">
         <h3 className="text-sm font-semibold text-text-primary mb-3">Sync</h3>
         <button
