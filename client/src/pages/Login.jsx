@@ -1,4 +1,5 @@
 import { Navigate, useSearchParams } from 'react-router-dom';
+import { apiUrl } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
@@ -23,7 +24,7 @@ export default function Login() {
     return <Navigate to="/" replace />;
   }
 
-  const discordUrl = `${import.meta.env.VITE_API_URL || ''}/auth/discord`;
+  const discordUrl = apiUrl('/auth/discord');
 
   return (
     <div className="flex items-center justify-center py-20">

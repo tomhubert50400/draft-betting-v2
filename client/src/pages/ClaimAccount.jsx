@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { apiUrl } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function ClaimAccount() {
@@ -32,7 +33,7 @@ export default function ClaimAccount() {
     setSubmitting(endpoint);
     setError(null);
     try {
-      const res = await fetch(`/auth/${endpoint}`, {
+      const res = await fetch(apiUrl(`/auth/${endpoint}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pending }),
