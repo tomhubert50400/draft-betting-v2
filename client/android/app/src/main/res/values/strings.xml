@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">KC Draft</string>
+    <string name="title_activity_main">KC Draft</string>
+    <string name="package_name">com.loldraftbetting.app</string>
+    <string name="custom_url_scheme">com.loldraftbetting.app</string>
+</resources>
