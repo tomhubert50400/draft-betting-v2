@@ -6,17 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "cap:sync": "npm run build && cap sync",
-    "cap:open:android": "cap open android",
-    "cap:open:ios": "cap open ios",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@capacitor/android": "^8.3.3",
-    "@capacitor/cli": "^8.3.3",
-    "@capacitor/core": "^8.3.3",
-    "@capacitor/ios": "^8.3.3",
     "@tanstack/react-query": "^5.99.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

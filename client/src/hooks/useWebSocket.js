@@ -1,14 +1,16 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { webSocketUrl } from '../api/client';
 
 export function useWebSocket() {
   const ws = useRef(null);
-  const connectRef = useRef(null);
   const queryClient = useQueryClient();
 
   const connect = useCallback(() => {
-    ws.current = new WebSocket(webSocketUrl());
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const token = localStorage.getItem('token');
+    const url = `${protocol}://${window.location.host}/ws${token ? `?token=${token}` : ''}`;
+
+    ws.current = new WebSocket(url);
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -19,7 +21,7 @@ export function useWebSocket() {
     };
 
     ws.current.onclose = () => {
-      setTimeout(() => connectRef.current?.(), 3000);
+      setTimeout(connect, 3000);
     };
 
     ws.current.onerror = () => {
@@ -28,7 +30,6 @@ export function useWebSocket() {
   }, [queryClient]);
 
   useEffect(() => {
-    connectRef.current = connect;
     connect();
     return () => { ws.current?.close(); };
   }, [connect]);
