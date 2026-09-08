@@ -24,6 +24,8 @@
 
 Draft Predictions lets a community predict champion picks before a League of Legends draft is revealed. Matches are created from the LoL Esports schedule, predictions lock around the live draft, and results are scored when the official draft data becomes available.
 
+This is a prediction game with no financial stake, deposit, payout, or real-money betting mechanism.
+
 The application is self-hosted and combines a React client, an Express API, SQLite persistence, Discord authentication, and WebSocket updates.
 
 ## Features
@@ -65,13 +67,13 @@ server/                 Node.js + Express backend
 | Frontend | React 19, Vite, React Router, TanStack Query, Tailwind CSS |
 | Backend | Node.js, Express, WebSocket |
 | Database | SQLite through `better-sqlite3` |
-| Authentication | Discord OAuth, JWT, bcrypt |
+| Authentication | Discord OAuth and JWT sessions |
 | External data | LoL Esports schedule, live game, draft, roster, and result feeds |
-| Operations | PM2, Caddy, SQLite backups, health endpoint |
+| Operations | GitHub Actions on a self-hosted runner, PM2, Caddy, SQLite backups, health endpoint |
 
 ## Prerequisites
 
-- Node.js
+- Node.js 20.19+ or 22.12+
 - npm
 - A Discord application for OAuth
 - Network access to the LoL Esports data endpoints
@@ -103,6 +105,7 @@ DISCORD_CLIENT_SECRET=
 DISCORD_REDIRECT_URI=http://localhost:3000/auth/discord/callback
 FRONTEND_URL=http://localhost:5173
 PORT=3001
+DB_PATH=./data/draft-betting.db
 ```
 
 Generate a long, random `JWT_SECRET` and never commit the resulting `.env` file.
@@ -110,7 +113,7 @@ Generate a long, random `JWT_SECRET` and never commit the resulting `.env` file.
 ### 3. Start the API
 
 ```bash
-npm run dev --workspace server
+node server/index.js
 ```
 
 The API exposes a health check at:
@@ -157,7 +160,7 @@ See [`DEPLOYMENT.md`](DEPLOYMENT.md) for the documented PM2, Caddy, backup, moni
 2. Users submit role-by-role champion predictions while a match is open.
 3. The backend monitors the live game feed and locks the prediction window.
 4. Completed draft and winner data are resolved from the LoL Esports feeds.
-5. Scores are calculated, stored in SQLite, and broadcast to connected clients.
+5. Partial role/team matches and fully exact drafts are scored, stored in SQLite, and broadcast to connected clients.
 
 ## Current verification status
 
