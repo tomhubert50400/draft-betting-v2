@@ -1,27 +1,25 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/auth-state';
 
 export default function DiscordCallback() {
   const [searchParams] = useSearchParams();
   const { loginWithToken } = useAuth();
   const navigate = useNavigate();
-  const [error, setError] = useState(null);
+  const token = searchParams.get('token');
+  const [authError, setError] = useState(null);
+  const error = !token ? 'No authentication token received' : authError;
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    if (!token) {
-      setError('No authentication token received');
-      return;
-    }
-
-    try {
-      loginWithToken(token);
-      navigate('/', { replace: true });
-    } catch (err) {
-      setError('Failed to authenticate: ' + (err.message || 'Unknown error'));
-    }
-  }, [searchParams, loginWithToken, navigate]);
+    if (!token) return;
+    let cancelled = false;
+    loginWithToken(token).then(() => {
+      if (!cancelled) navigate('/', { replace: true });
+    }).catch((err) => {
+      if (!cancelled) setError('Failed to authenticate: ' + (err.message || 'Unknown error'));
+    });
+    return () => { cancelled = true; };
+  }, [token, loginWithToken, navigate]);
 
   if (error) {
     return (

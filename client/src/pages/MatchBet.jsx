@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchMatch } from '../api/matches';
 import { placeBet, fetchMyBets } from '../api/bets';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/auth-state';
 import DraftSelector from '../components/DraftSelector';
 
 export default function MatchBet() {

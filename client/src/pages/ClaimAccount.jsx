@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/auth-state';
 
 export default function ClaimAccount() {
   const [params] = useSearchParams();
@@ -39,7 +39,7 @@ export default function ClaimAccount() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur');
-      loginWithToken(data.token);
+      await loginWithToken(data.token);
       navigate('/');
     } catch (err) {
       setError(err.message);

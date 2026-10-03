@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchUser, fetchUserBets } from '../api/users';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/auth-state';
 import BadgeDisplay from '../components/BadgeDisplay';
 
 export default function Profile() {

@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useChampions } from '../contexts/ChampionsContext';
+import { useChampions } from '../contexts/champions-state';
 import { fetchPlayerChampionStats } from '../api/players';
 import { getChampionsForRole } from '../data/championRoles';
 

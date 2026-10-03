@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { ChampionsContext } from './champions-state';
+import React, { useState, useEffect } from "react";
 
 let championsCache = null;
 let versionCache = null;
@@ -44,13 +45,6 @@ function getChampionImageUrl(championId, version) {
   return `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${championId}.png`;
 }
 
-const ChampionsContext = createContext({
-  champions: [],
-  version: null,
-  loading: true,
-  getChampionImageUrl: () => "",
-});
-
 export function ChampionsProvider({ children }) {
   const [champions, setChampions] = useState([]);
   const [version, setVersion] = useState(null);
@@ -84,12 +78,4 @@ export function ChampionsProvider({ children }) {
       {children}
     </ChampionsContext.Provider>
   );
-}
-
-export function useChampions() {
-  const context = useContext(ChampionsContext);
-  if (!context) {
-    throw new Error("useChampions must be used within a ChampionsProvider");
-  }
-  return context;
 }
