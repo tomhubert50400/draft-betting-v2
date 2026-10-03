@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useChampions } from '../contexts/ChampionsContext';
+import { useChampions } from '../contexts/champions-state';
 import { apiFetch } from '../api/client';
 
 export default function RolePanel({ teamName, role, matchId }) {

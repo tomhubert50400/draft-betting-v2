@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { fetchLeaderboard } from '../api/users';
 import { fetchMatches } from '../api/matches';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/auth-state';
 import BadgeDisplay from '../components/BadgeDisplay';
 
 export default function Leaderboard() {

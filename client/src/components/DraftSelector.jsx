@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useChampions } from '../contexts/ChampionsContext';
+import { useChampions } from '../contexts/champions-state';
 import ChampionSearch from './ChampionSearch';
 
 const ROLES = ['Top', 'Jungle', 'Mid', 'Bot', 'Support'];
@@ -63,7 +63,7 @@ export default function DraftSelector({ match, onSubmit, existingBet, canBrowse 
       [key]: champ ? { id: champ.id, name: champ.name } : null,
     }));
     setActiveSlot(null);
-  }, [activeSlot]);
+  }, [activeSlot, setActiveSlot]);
 
   const handleSubmit = async () => {
     const predictions = {};

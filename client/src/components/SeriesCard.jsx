@@ -23,7 +23,7 @@ function formatMatchDate(iso) {
   return `${day} ${time}`;
 }
 
-export default function SeriesCard({ matches, betMatchIds, betsByMatch }) {
+export default function SeriesCard({ matches, betsByMatch }) {
   const [expanded, setExpanded] = useState(false);
 
   // Sort by game number

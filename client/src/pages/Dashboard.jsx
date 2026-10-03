@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchMatches } from '../api/matches';
 import { fetchMyBets } from '../api/bets';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/auth-state';
 import MatchCard from '../components/MatchCard';
 import SeriesCard from '../components/SeriesCard';
 
